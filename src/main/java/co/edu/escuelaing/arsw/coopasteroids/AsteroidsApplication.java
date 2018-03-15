@@ -1,10 +1,10 @@
-package co.edu.escuelaing.arsw.coop.asteroids;
+package co.edu.escuelaing.arsw.coopasteroids;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * //TODO
+ * Main class that runs the Spring Application for COOP Asteroids
  * @author Daniel Ospina
  */
 @SpringBootApplication
