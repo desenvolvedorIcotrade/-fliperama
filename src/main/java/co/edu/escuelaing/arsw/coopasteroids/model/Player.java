@@ -1,33 +1,28 @@
 package co.edu.escuelaing.arsw.coopasteroids.model;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- *
- * @author daniel
+ * //TODO
+ * @author Daniel Ospina
  */
 public class Player {
-    private long playerX;
-    private long playerY;
+    private double playerX;
+    private double playerY;
     private String playerId;
+    private int playerAngle;
 
-    public long getPlayerX() {
+    public double getPlayerX() {
         return playerX;
     }
 
-    public void setPlayerX(int playerX) {
+    public void setPlayerX(double playerX) {
         this.playerX = playerX;
     }
 
-    public long getPlayerY() {
+    public double getPlayerY() {
         return playerY;
     }
 
-    public void setPlayerY(int playerY) {
+    public void setPlayerY(double playerY) {
         this.playerY = playerY;
     }
 
@@ -38,6 +33,12 @@ public class Player {
     public void setPlayerId(String playerId) {
         this.playerId = playerId;
     }
-    
-    
+
+    public int getPlayerAngle() {
+        return playerAngle;
+    }
+
+    public void setPlayerAngle(int playerAngle) {
+        this.playerAngle = playerAngle;
+    }
 }

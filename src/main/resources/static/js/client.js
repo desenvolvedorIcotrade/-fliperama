@@ -28,7 +28,11 @@ var ClientModule = (function () {
             var sprite = spriteobj.sprite;
             sprite.x = playerData.playerX;
             sprite.y = playerData.playerY;
-        };
+            sprite.angle = playerData.playerAngle;
+        }
+        else {
+            GameModule.addNewPlayer(playerData);
+        }
     };
     
     var subscribeToPlayerUpdates = function () {
@@ -37,8 +41,8 @@ var ClientModule = (function () {
         });
     };
     
-    var sendUpdatePlayer = function (playerX, playerY) {
-        stompClient.send("/app/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY}));
+    var sendUpdatePlayer = function (playerX, playerY, playerAngle) {
+        stompClient.send("/app/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
     
     var playerId = null;

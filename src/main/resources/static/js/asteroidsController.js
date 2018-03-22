@@ -58,6 +58,7 @@ var GameModule = (function () {
         if (ClientModule.getPlayerId() !== playerData.playerId) {
             var newPlayer = game.add.sprite(playerData.playerX, playerData.playerY, "player");
             playerList.push({id:playerData.playerId, sprite:newPlayer});
+            newPlayer.anchor.setTo(0.5);
         }
     };
     
@@ -148,7 +149,8 @@ var statusMain = {
 //        for (var _x = 0; _x < playerList.length; _x++) {
 //            
 //        }
-        if (connected === true) { ClientModule.sendUpdatePlayer(player.x, player.y);}
+        if (connected === true) { ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);}
+        
     }
 
 };
