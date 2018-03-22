@@ -1,4 +1,4 @@
-/* global Phaser */
+/* global Phaser, ClientModule */
 
 /*var AsteroidsControllerModule = (function () {
  
@@ -46,13 +46,33 @@
  
  })();*/
 
-
+var GameModule = (function () {
+    
+    var playerList = [];
+    
+    var getPlayerList = function () {
+        return playerList;
+    };
+    
+    var addNewPlayer = function (playerData) {
+        if (ClientModule.getPlayerId() !== playerData.playerId) {
+            var newPlayer = game.add.sprite(playerData.playerX, playerData.playerY, "player");
+            playerList.push({id:playerData.playerId, sprite:newPlayer});
+        }
+    };
+    
+    return {
+        addNewPlayer: addNewPlayer,
+        getPlayerList: getPlayerList
+    };
+})();
 
 var player;
 var cursorKeys;
 
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
 
+var connected = false;
 
 var statusMain = {
     preload: function () {
@@ -64,11 +84,10 @@ var statusMain = {
     },
     create: function () {
         
-
-
         game.add.tileSprite(0, 0, 800, 600, "background");
-
-        player = game.add.sprite(game.width / 2, game.height / 2, "player");
+        var playerX = Math.floor(Math.random() * 801);
+        var playerY = Math.floor(Math.random() * 601);
+        player = game.add.sprite(playerX, playerY, "player");
         player.anchor.setTo(0.5);
         player.scale.setTo(0.7);
         player.animations.add("acceleration", [0, 1], 15, true);
@@ -78,14 +97,24 @@ var statusMain = {
         game.physics.startSystem(Phaser.Physics.ARCADE);
         game.physics.arcade.enable(player);
         player.body.collideWorldBounds = true;
-        
+
         player.body.maxVelocity.x = 20;
         player.body.maxVelocity.y = 20;
         
-        console.log(player.angle);
-
-
-
+        game.stage.disableVisibilityChange = true;
+        
+        callback = {
+            onSuccess:function () {
+                ClientModule.registerPlayer(playerX, playerY);
+                connected = true;
+            },
+            onFailure:function () {
+                //alert("Can't Connect to Game Server");
+            }
+        };
+        
+        ClientModule.connect(callback);
+        
     },
     update: function () {
         
@@ -113,9 +142,13 @@ var statusMain = {
             //player.body.acceleration = 0;
             player.frame = 0;
         }
-
-
-
+        
+        
+//        var playerList = GameModule.getPlayerList();
+//        for (var _x = 0; _x < playerList.length; _x++) {
+//            
+//        }
+        if (connected === true) { ClientModule.sendUpdatePlayer(player.x, player.y);}
     }
 
 };
