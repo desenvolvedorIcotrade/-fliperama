@@ -14,9 +14,6 @@ public class Spaceship {
     private int numLives=4;
     private int fuel=1000;
 
-    public Spaceship() {
-    }
-
     public int getNumLives() {
         return numLives;
     }

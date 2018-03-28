@@ -1,12 +1,12 @@
-/* global Stomp, GameModule */
+/* global Stomp, GameModule, SockJS */
 
 var ClientModule = (function () {
     
     var stompClient = null;
+    var playerId = null;
     
     var connect = function (callback) {
-        console.info('Connecting to WS...');
-        var socket = new SockJS('/stompendpoint');
+        var socket = new SockJS("/stompendpoint");
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function () {
             callback.onSuccess();
@@ -23,7 +23,7 @@ var ClientModule = (function () {
     
     var updatePlayer = function (playerData) {
         var playerList = GameModule.getPlayerList();
-        var spriteobj = playerList.find(_x => _x.id === playerData.playerId);
+        var spriteobj = playerList.find((_x) => (_x.id === playerData.playerId));
         if (typeof spriteobj !== "undefined") {
             var sprite = spriteobj.sprite;
             sprite.x = playerData.playerX;
@@ -45,8 +45,6 @@ var ClientModule = (function () {
         stompClient.send("/app/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
     
-    var playerId = null;
-    
     var getPlayerId = function () {
         return playerId;
     };
@@ -66,4 +64,4 @@ var ClientModule = (function () {
         sendUpdatePlayer: sendUpdatePlayer
     };
     
-})();
+}());

@@ -1,5 +1,10 @@
 /* global Phaser, ClientModule */
 
+var player;
+var cursorKeys;
+var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
+var connected = false;
+
 var GameModule = (function () {
     
     var playerList = [];
@@ -20,19 +25,12 @@ var GameModule = (function () {
         addNewPlayer: addNewPlayer,
         getPlayerList: getPlayerList
     };
-})();
-
-var player;
-var cursorKeys;
-
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
-
-var connected = false;
+}());
 
 var statusMain = {
     preload: function () {
         game.load.image("background", "sprites/fondoSpace1.png");
-        game.load.spritesheet("player", "sprites/shipP1.png", 38, 56);
+        game.load.spritesheet("player", "sprites/shipP1.png", 26, 40);
     },
     create: function () {
         game.add.tileSprite(0, 0, 800, 600, "background");
@@ -40,7 +38,6 @@ var statusMain = {
         var playerY = Math.floor(Math.random() * 601);
         player = game.add.sprite(playerX, playerY, "player");
         player.anchor.setTo(0.5);
-        player.scale.setTo(0.7);
         player.animations.add("acceleration", [0, 1], 15, true);
 
         cursorKeys = game.input.keyboard.createCursorKeys();
@@ -53,7 +50,7 @@ var statusMain = {
         
         game.stage.disableVisibilityChange = true;
         
-        callback = {
+        var callback = {
             onSuccess:function () {
                 ClientModule.registerPlayer(playerX, playerY);
                 connected = true;
