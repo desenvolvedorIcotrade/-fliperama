@@ -32,4 +32,5 @@ public class StompMessagesHandler {
         msgt.convertAndSend("/client/playerUpdate", player);
     }
     
+    
 }
