@@ -2,9 +2,10 @@
 
 var player;
 var cursorKeys;
+var spaceKey;
+var shootFlag = false;
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
 var connected = false;
-var asteroid1;
 
 var GameModule = (function () {
     
@@ -26,21 +27,22 @@ var GameModule = (function () {
         var genX;
         var genY;
         if (posX <= 400 & posY <= 300) {
-            if (Math.random() >= 0.5) { genX = -70; genY = posY; } else { genX = posX; genY = -70; }
+            if (Math.random() >= 0.5) { genX = -30; genY = posY; } else { genX = posX; genY = -30; }
         }
         else if (posX >= 400 & posY <= 300) {
-            if (Math.random() >= 0.5) { genX = 870; genY = posY; } else { genX = posX; genY = -70; }
+            if (Math.random() >= 0.5) { genX = 830; genY = posY; } else { genX = posX; genY = -30; }
         }
         else if (posX <= 400 & posY >= 300) {
-            if (Math.random() >= 0.5) { genX = -70; genY = posY; } else { genX = posX; genY = 670; }
+            if (Math.random() >= 0.5) { genX = -30; genY = posY; } else { genX = posX; genY = 630; }
         }
         if (posX >= 400 & posY >= 300) {
-            if (Math.random() >= 0.5) { genX = 870; genY = posY; } else { genX = posX; genY = 670; }
+            if (Math.random() >= 0.5) { genX = 830; genY = posY; } else { genX = posX; genY = 630; }
         }
         return [genX, genY];
     };
     
     var addNewAsteroid = function() {
+        var asteroid1;
         var ranX = Math.random() * 800;
         var ranY = Math.random() * 600;
         var spawnPos = _generateSpawnPosAsteroids(ranX, ranY);
@@ -55,6 +57,10 @@ var GameModule = (function () {
         
         game.physics.arcade.enable(asteroid1);
         asteroid1.body.collideWorldBounds = false;
+        asteroid1.checkWorldBounds = true;
+        asteroid1.events.onOutOfBounds.add(function() {asteroid1.destroy();}, this);
+        asteroid1.events.onDestroy.add(function() {console.log("Asteroid Destroyed");}, this);
+        
         asteroid1.angle = asteroidAngle;
         
         asteroid1.anchor.setTo(0.5);
@@ -62,10 +68,26 @@ var GameModule = (function () {
         asteroid1.body.velocity.y = 50 * Math.sin((asteroid1.angle)*Math.PI/180);
     };
     
+    var playerShoots = function () {
+        
+        var bullet = game.add.sprite(player.x, player.y, "bala1");
+        game.physics.arcade.enable(bullet);
+        bullet.body.collideWorldBounds = false;
+        bullet.checkWorldBounds = true;
+        bullet.events.onOutOfBounds.add(function() {bullet.destroy();}, this);
+        bullet.events.onDestroy.add(function() {console.log("Bullet Destroyed");}, this);
+        bullet.angle = player.angle - 90;
+        bullet.anchor.setTo(0.5);
+        bullet.body.velocity.x = 400 * Math.cos((bullet.angle)*Math.PI/180);
+        bullet.body.velocity.y = 400 * Math.sin((bullet.angle)*Math.PI/180);
+        
+    };
+    
     return {
         addNewPlayer: addNewPlayer,
         getPlayerList: getPlayerList,
-        addNewAsteroid: addNewAsteroid
+        addNewAsteroid: addNewAsteroid,
+        playerShoots: playerShoots
     };
 }());
 
@@ -74,6 +96,7 @@ var statusMain = {
         game.load.image("background", "sprites/fondoSpace1.png");
         game.load.spritesheet("player", "sprites/shipP1.png", 26, 40);
         game.load.image("asteroid1", "assets/asteroid1.png");
+        game.load.image("bala1", "assets/bala.png");
     },
     create: function () {
         game.add.tileSprite(0, 0, 800, 600, "background");
@@ -84,6 +107,7 @@ var statusMain = {
         player.animations.add("acceleration", [0, 1], 15, true);
         
         cursorKeys = game.input.keyboard.createCursorKeys();
+        spaceKey = game.input.keyboard.addKeys({"space":Phaser.KeyCode.SPACEBAR});
 
         game.physics.startSystem(Phaser.Physics.ARCADE);
         game.physics.arcade.enable(player);
@@ -92,6 +116,7 @@ var statusMain = {
         player.body.maxVelocity.y = 60;
         
         GameModule.addNewAsteroid();
+        game.time.events.loop(2500, this.addNewAsteroid, this);
         
         game.stage.disableVisibilityChange = true;
         
@@ -124,20 +149,18 @@ var statusMain = {
             //player.body.acceleration = 0;
             player.frame = 0;
         }
-//        var playerList = GameModule.getPlayerList();
-//        for (var _x = 0; _x < playerList.length; _x++) {
-//            
-//        }
+        if (spaceKey.space.isDown && (shootFlag === false)) {
+            shootFlag = true;
+            GameModule.playerShoots();
+        } else if (!spaceKey.space.isDown && (shootFlag === true)){
+            shootFlag = false;
+        }
         if (connected === true) { ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);}
-        
-        console.log("Velocidad en y: " + asteroid1.body.velocity.y + " Velocidad en X: " + asteroid1.body.velocity.x);
-        console.log("y: " + asteroid1.y + " X: " + asteroid1.x);
+    },
+    addNewAsteroid: function() {
+        GameModule.addNewAsteroid();
     }
 };
 
 game.state.add("Main", statusMain);
 game.state.start("Main");
-
-
-
-    
