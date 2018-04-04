@@ -23,37 +23,9 @@ var GameModule = (function () {
         }
     };
     
-    var _generateSpawnPosAsteroids = function(posX, posY) {
-        var genX;
-        var genY;
-        if (posX <= 400 & posY <= 300) {
-            if (Math.random() >= 0.5) { genX = -30; genY = posY; } else { genX = posX; genY = -30; }
-        }
-        else if (posX >= 400 & posY <= 300) {
-            if (Math.random() >= 0.5) { genX = 830; genY = posY; } else { genX = posX; genY = -30; }
-        }
-        else if (posX <= 400 & posY >= 300) {
-            if (Math.random() >= 0.5) { genX = -30; genY = posY; } else { genX = posX; genY = 630; }
-        }
-        if (posX >= 400 & posY >= 300) {
-            if (Math.random() >= 0.5) { genX = 830; genY = posY; } else { genX = posX; genY = 630; }
-        }
-        return [genX, genY];
-    };
-    
-    var addNewAsteroid = function() {
-        var asteroid1;
-        var ranX = Math.random() * 800;
-        var ranY = Math.random() * 600;
-        var spawnPos = _generateSpawnPosAsteroids(ranX, ranY);
-        var posX = spawnPos[0];
-        var posY = spawnPos[1];
+    var addNewAsteroid = function(posX, posY, angle) {
         
-        ranX = Math.random() * 800;
-        ranY = Math.random() * 600;
-        var asteroidAngle = (Math.atan2(ranY - posY, ranX - posX) * 180) / Math.PI;
-        
-        asteroid1 = game.add.sprite(posX, posY, "asteroid1");
+        var asteroid1 = game.add.sprite(posX, posY, "asteroid1");
         
         game.physics.arcade.enable(asteroid1);
         asteroid1.body.collideWorldBounds = false;
@@ -61,22 +33,22 @@ var GameModule = (function () {
         asteroid1.events.onOutOfBounds.add(function() {asteroid1.destroy();}, this);
         asteroid1.events.onDestroy.add(function() {console.log("Asteroid Destroyed");}, this);
         
-        asteroid1.angle = asteroidAngle;
+        asteroid1.angle = angle;
         
         asteroid1.anchor.setTo(0.5);
         asteroid1.body.velocity.x = 50 * Math.cos((asteroid1.angle)*Math.PI/180);
         asteroid1.body.velocity.y = 50 * Math.sin((asteroid1.angle)*Math.PI/180);
     };
     
-    var playerShoots = function () {
+    var playerShoots = function (posX, posY, angle) {
         
-        var bullet = game.add.sprite(player.x, player.y, "bala1");
+        var bullet = game.add.sprite(posX, posY, "bala1");
         game.physics.arcade.enable(bullet);
         bullet.body.collideWorldBounds = false;
         bullet.checkWorldBounds = true;
         bullet.events.onOutOfBounds.add(function() {bullet.destroy();}, this);
         bullet.events.onDestroy.add(function() {console.log("Bullet Destroyed");}, this);
-        bullet.angle = player.angle - 90;
+        bullet.angle = angle - 90;
         bullet.anchor.setTo(0.5);
         bullet.body.velocity.x = 400 * Math.cos((bullet.angle)*Math.PI/180);
         bullet.body.velocity.y = 400 * Math.sin((bullet.angle)*Math.PI/180);
@@ -115,9 +87,6 @@ var statusMain = {
         player.body.maxVelocity.x = 60;
         player.body.maxVelocity.y = 60;
         
-        GameModule.addNewAsteroid();
-        game.time.events.loop(2500, this.addNewAsteroid, this);
-        
         game.stage.disableVisibilityChange = true;
         
         var callback = {
@@ -151,7 +120,7 @@ var statusMain = {
         }
         if (spaceKey.space.isDown && (shootFlag === false)) {
             shootFlag = true;
-            GameModule.playerShoots();
+            ClientModule.playerShoots(player.x, player.y, player.angle);
         } else if (!spaceKey.space.isDown && (shootFlag === true)){
             shootFlag = false;
         }
