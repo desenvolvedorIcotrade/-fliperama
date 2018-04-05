@@ -6,6 +6,8 @@ var spaceKey;
 var shootFlag = false;
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
 var connected = false;
+var asteroidsGroup;
+var bulletsGroup;
 
 var GameModule = (function () {
     
@@ -32,9 +34,9 @@ var GameModule = (function () {
         asteroid1.checkWorldBounds = true;
         asteroid1.events.onOutOfBounds.add(function() {asteroid1.destroy();}, this);
         asteroid1.events.onDestroy.add(function() {console.log("Asteroid Destroyed");}, this);
+        asteroidsGroup.add(asteroid1);
         
-        asteroid1.angle = angle;
-        
+        asteroid1.angle = angle;     
         asteroid1.anchor.setTo(0.5);
         asteroid1.body.velocity.x = 50 * Math.cos((asteroid1.angle)*Math.PI/180);
         asteroid1.body.velocity.y = 50 * Math.sin((asteroid1.angle)*Math.PI/180);
@@ -48,6 +50,8 @@ var GameModule = (function () {
         bullet.checkWorldBounds = true;
         bullet.events.onOutOfBounds.add(function() {bullet.destroy();}, this);
         bullet.events.onDestroy.add(function() {console.log("Bullet Destroyed");}, this);
+        bulletsGroup.add(bullet);
+        
         bullet.angle = angle - 90;
         bullet.anchor.setTo(0.5);
         bullet.body.velocity.x = 400 * Math.cos((bullet.angle)*Math.PI/180);
@@ -55,11 +59,18 @@ var GameModule = (function () {
         
     };
     
+    var destroyDeadAsteroids = function () {
+        asteroidsGroup.forEachDead(function (asteroid) {
+            asteroid.destroy();
+        });
+    };
+    
     return {
         addNewPlayer: addNewPlayer,
         getPlayerList: getPlayerList,
         addNewAsteroid: addNewAsteroid,
-        playerShoots: playerShoots
+        playerShoots: playerShoots,
+        destroyDeadAsteroids: destroyDeadAsteroids
     };
 }());
 
@@ -88,6 +99,11 @@ var statusMain = {
         player.body.maxVelocity.y = 60;
         
         game.stage.disableVisibilityChange = true;
+        
+        asteroidsGroup = game.add.group();
+        asteroidsGroup.enableBody = true;
+        bulletsGroup = game.add.group();
+        bulletsGroup.enableBody = true;
         
         var callback = {
             onSuccess:function () {
@@ -124,10 +140,18 @@ var statusMain = {
         } else if (!spaceKey.space.isDown && (shootFlag === true)){
             shootFlag = false;
         }
+        
+        GameModule.destroyDeadAsteroids();
+        game.physics.arcade.overlap(bulletsGroup, asteroidsGroup, this.destroyAsteroid, null, this);
+        
         if (connected === true) { ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);}
     },
     addNewAsteroid: function() {
         GameModule.addNewAsteroid();
+    },
+    destroyAsteroid: function(bullet, asteroid) {
+        asteroid.kill();
+        bullet.kill();
     }
 };
 
