@@ -39,4 +39,12 @@ public class StompMessagesHandler {
     public void handlePlayerShoots(Player player) {
         msgt.convertAndSend("/client/playerShoots", player);
     }
+    
+    @MessageMapping("/informAsteroidDestroyed")
+    public void handleInformAsteroidDestroyed(String playerId) {
+        System.out.println("[" + playerId + "] destroyed an asteroid.");
+        game.asteroidDestroyedByPlayer(playerId);
+        System.out.println("Player Points: " + game.getPlayerPoints());
+        msgt.convertAndSend("/client/updatePoints", game.getPlayerPoints());
+    }
 }

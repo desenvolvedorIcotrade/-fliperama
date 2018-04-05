@@ -4,6 +4,7 @@ var player;
 var cursorKeys;
 var spaceKey;
 var shootFlag = false;
+var pointsText;
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
 var connected = false;
 var asteroidsGroup;
@@ -42,7 +43,7 @@ var GameModule = (function () {
         asteroid1.body.velocity.y = 50 * Math.sin((asteroid1.angle)*Math.PI/180);
     };
     
-    var playerShoots = function (posX, posY, angle) {
+    var playerShoots = function (posX, posY, angle, playerId) {
         
         var bullet = game.add.sprite(posX, posY, "bala1");
         game.physics.arcade.enable(bullet);
@@ -53,6 +54,7 @@ var GameModule = (function () {
         bulletsGroup.add(bullet);
         
         bullet.angle = angle - 90;
+        bullet.shooter = playerId;
         bullet.anchor.setTo(0.5);
         bullet.body.velocity.x = 400 * Math.cos((bullet.angle)*Math.PI/180);
         bullet.body.velocity.y = 400 * Math.sin((bullet.angle)*Math.PI/180);
@@ -65,12 +67,21 @@ var GameModule = (function () {
         });
     };
     
+    var updatePoints = function (pointsList) {
+        var text = "";
+        for (var _x = 0; _x < Object.keys(pointsList).length; _x++) {
+            text = text + Object.keys(pointsList)[_x] + " " + Object.values(pointsList)[_x] + "      ";
+        }
+        pointsText.setText(text);
+    };
+    
     return {
         addNewPlayer: addNewPlayer,
         getPlayerList: getPlayerList,
         addNewAsteroid: addNewAsteroid,
         playerShoots: playerShoots,
-        destroyDeadAsteroids: destroyDeadAsteroids
+        destroyDeadAsteroids: destroyDeadAsteroids,
+        updatePoints: updatePoints
     };
 }());
 
@@ -104,6 +115,13 @@ var statusMain = {
         asteroidsGroup.enableBody = true;
         bulletsGroup = game.add.group();
         bulletsGroup.enableBody = true;
+        
+        pointsText = game.add.text(420, 15, "", {
+            font: "22px Arial",
+            fill: "#ffffff",
+            align: "center"
+        });
+        pointsText.anchor.setTo(0.5, 0.5);
         
         var callback = {
             onSuccess:function () {
@@ -152,6 +170,7 @@ var statusMain = {
     destroyAsteroid: function(bullet, asteroid) {
         asteroid.kill();
         bullet.kill();
+        ClientModule.informAsteroidDestroyed(bullet.shooter);
     }
 };
 

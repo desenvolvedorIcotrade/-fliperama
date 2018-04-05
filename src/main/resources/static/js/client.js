@@ -51,7 +51,14 @@ var ClientModule = (function () {
     var subscribeToPlayerShoots = function () {
         stompClient.subscribe("/client/playerShoots", function (eventbody) {
             var data = JSON.parse(eventbody.body);
-            GameModule.playerShoots(data.playerX, data.playerY, data.playerAngle);
+            GameModule.playerShoots(data.playerX, data.playerY, data.playerAngle, data.playerId);
+        });
+    };
+    
+    var subscribeToUpdatePoints = function () {
+        stompClient.subscribe("/client/updatePoints", function (eventbody) {
+            var pointsList = JSON.parse(eventbody.body);
+            GameModule.updatePoints(pointsList);
         });
     };
     
@@ -70,10 +77,17 @@ var ClientModule = (function () {
         subscribeToPlayerUpdates();
         subscribeToNewAsteroids();
         subscribeToPlayerShoots();
+        subscribeToUpdatePoints();
     };
     
     var playerShoots = function (playerX, playerY, playerAngle) {
         stompClient.send("/app/playerShoots", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
+    };
+    
+    var informAsteroidDestroyed = function (shooter) {
+        if (shooter === playerId) {
+            stompClient.send("/app/informAsteroidDestroyed", {}, shooter);
+        }
     };
     
     return {
@@ -82,7 +96,8 @@ var ClientModule = (function () {
         getPlayerId:getPlayerId,
         updatePlayer: updatePlayer,
         sendUpdatePlayer: sendUpdatePlayer,
-        playerShoots: playerShoots
+        playerShoots: playerShoots,
+        informAsteroidDestroyed: informAsteroidDestroyed
     };
     
 }());
