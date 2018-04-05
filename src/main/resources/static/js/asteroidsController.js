@@ -31,6 +31,7 @@ var timerFull;
 var lives;
 var timerLives;
 
+
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
 
 var connected = false;
@@ -38,6 +39,7 @@ var connected = false;
 var statusMain = {
     preload: function () {
         game.load.image("background", "assets/fondoSpace1.png");
+
         game.load.spritesheet("player", "assets/shipP1.png", 26, 40);
         game.load.image("fullCell","assets/fullCell.png");
         game.load.image("life","assets/life.png");
@@ -45,6 +47,7 @@ var statusMain = {
     create: function () {
         bg = game.add.tileSprite(0, 0, 800, 600, "background");
         
+
         var playerX = Math.floor(Math.random() * 801);
         var playerY = Math.floor(Math.random() * 601);
         
@@ -67,12 +70,14 @@ var statusMain = {
         fullCells.enableBody = true;
         fullCells.createMultiple(3, "fullCell");
         
+
         lives = game.add.group();
         lives.enableBody = true;
         lives.createMultiple(3, "life");
         
         timerFull = game.time.events.loop(45000,this.newFullCell,this);
         timerLives = game.time.events.loop(60000,this.newLife,this);
+
 
         callback = {
 
@@ -88,7 +93,7 @@ var statusMain = {
         ClientModule.connect(callback);
     },
     update: function () {
-        
+
         //Movement of the background
         bg.tilePosition.x -= 1;
         
@@ -109,6 +114,7 @@ var statusMain = {
             player.animations.stop("acceleration");
             player.frame = 0;
         }
+
         
         //collision of the cells with the spaceship
         game.physics.arcade.overlap(player, fullCells, this.takeFullCell, null,  this);
