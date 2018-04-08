@@ -17,8 +17,10 @@ public class GameController {
     private final StompMessagesHandler s;
     private ConcurrentHashMap<String, Integer> playerPoints;
     private ConcurrentHashMap<String, Integer> playerLifes;
+    private int asteroidId;
     
     public GameController(StompMessagesHandler s) {
+        this.asteroidId = 0;
         System.out.println("New Game Instance created");
         playerPoints = new ConcurrentHashMap<>();
         playerLifes = new ConcurrentHashMap<>();
@@ -50,12 +52,16 @@ public class GameController {
         return playerLifes;
     }
 
-    void setPlayerLifes(String playerId, int i) {
+    public void setPlayerLifes(String playerId, int i) {
         playerLifes.putIfAbsent(playerId, i);
     }
 
-    void setPlayerPoints(String playerId, int i) {
+    public void setPlayerPoints(String playerId, int i) {
         playerPoints.putIfAbsent(playerId, i);
+    }
+
+    public int getAndIncrementAsteroidId() {
+        return asteroidId++;
     }
     
 }

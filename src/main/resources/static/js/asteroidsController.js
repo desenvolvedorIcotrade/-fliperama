@@ -27,7 +27,7 @@ var GameModule = (function () {
         }
     };
     
-    var addNewAsteroid = function(posX, posY, angle) {
+    var addNewAsteroid = function(posX, posY, angle, asteroidId) {
         
         var asteroid1 = game.add.sprite(posX, posY, "asteroid1");
         
@@ -35,9 +35,9 @@ var GameModule = (function () {
         asteroid1.body.collideWorldBounds = false;
         asteroid1.checkWorldBounds = true;
         asteroid1.events.onOutOfBounds.add(function() {asteroid1.destroy();}, this);
-        asteroid1.events.onDestroy.add(function() {console.log("Asteroid Destroyed");}, this);
         asteroidsGroup.add(asteroid1);
         
+        asteroid1.name = asteroidId;
         asteroid1.angle = angle;     
         asteroid1.anchor.setTo(0.5);
         asteroid1.body.velocity.x = 50 * Math.cos((asteroid1.angle)*Math.PI/180);
@@ -51,7 +51,6 @@ var GameModule = (function () {
         bullet.body.collideWorldBounds = false;
         bullet.checkWorldBounds = true;
         bullet.events.onOutOfBounds.add(function() {bullet.destroy();}, this);
-        bullet.events.onDestroy.add(function() {console.log("Bullet Destroyed");}, this);
         bulletsGroup.add(bullet);
         
         bullet.angle = angle - 90;
@@ -70,18 +69,27 @@ var GameModule = (function () {
     
     var updatePoints = function (pointsList) {
         var text = "";
+        var keysList= Object.keys(pointsList);
+        var valuesList = Object.values(pointsList);
         for (var _x = 0; _x < Object.keys(pointsList).length; _x++) {
-            text = text + Object.keys(pointsList)[_x] + " " + Object.values(pointsList)[_x] + "      ";
+            text = text + keysList[_x] + " " + valuesList[_x] + "      ";
         }
         pointsText.setText(text);
     };
     
     var updateLifes = function (lifesList) {
         var text = "";
+        var keysList= Object.keys(lifesList);
+        var valuesList = Object.values(lifesList);
         for (var _x = 0; _x < Object.keys(lifesList).length; _x++) {
-            text = text + Object.keys(lifesList)[_x] + " " + Object.values(lifesList)[_x] + "      ";
+            text = text + keysList[_x] + " " + valuesList[_x] + "      ";
         }
         lifesText.setText(text);
+    };
+    
+    var eliminateAsteroid = function (astId) {
+        var asteroidSprite = asteroidsGroup.getByName(astId);
+        asteroidSprite.kill();
     };
     
     return {
@@ -91,7 +99,8 @@ var GameModule = (function () {
         playerShoots: playerShoots,
         destroyDeadAsteroids: destroyDeadAsteroids,
         updatePoints: updatePoints,
-        updateLifes: updateLifes
+        updateLifes: updateLifes,
+        eliminateAsteroid: eliminateAsteroid
     };
 }());
 
@@ -193,8 +202,7 @@ var statusMain = {
         ClientModule.informAsteroidDestroyed(bullet.shooter);
     },
     asteroidTouch: function (plyr, asteroid) {
-        asteroid.kill();
-        ClientModule.informAsteroidTouch();
+        ClientModule.informAsteroidTouch(asteroid.name);
     }
 };
 

@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 public class AsteroidRunnable implements Runnable {
 
     private final StompMessagesHandler s;
-
+   
     public AsteroidRunnable(StompMessagesHandler s) {
         this.s = s;
     }
@@ -30,17 +30,17 @@ public class AsteroidRunnable implements Runnable {
     private int[] asteroidSpawnPosition() {
         int ranX = (int) (Math.random() * 800);
         int ranY = (int) (Math.random() * 600);
-        int[] spawnPos = _generateSpawnPosAsteroids(ranX, ranY);
+        int[] spawnPos = generateSpawnPosAsteroids(ranX, ranY);
         int posX = spawnPos[0];
         int posY = spawnPos[1];
         
         ranX = (int) (Math.random() * 800);
         ranY = (int) (Math.random() * 600);
         int asteroidAngle = (int) ((Math.atan2(ranY - posY, ranX - posX) * 180) / Math.PI);
-        return new int[] {posX, posY, asteroidAngle};
+        return new int[] {posX, posY, asteroidAngle, 0};
     }
 
-    private int[] _generateSpawnPosAsteroids(int posX, int posY) {
+    private int[] generateSpawnPosAsteroids(int posX, int posY) {
         int genX = 0;
         int genY = 0;
         if (posX <= 400 & posY <= 300) {

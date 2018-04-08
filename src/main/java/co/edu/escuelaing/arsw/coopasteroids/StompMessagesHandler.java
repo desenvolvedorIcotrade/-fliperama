@@ -5,6 +5,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import co.edu.escuelaing.arsw.coopasteroids.model.Player;
+import java.util.List;
 
 /**
  *
@@ -33,7 +34,8 @@ public class StompMessagesHandler {
     }
     
     public void handleAddNewAsteroid(int[] data) {
-        System.out.println("New Asteroid sent: " + data[0] + " " + data[1] + " " + data[2]);
+        data[3] = game.getAndIncrementAsteroidId();
+        System.out.println("New Asteroid sent: " + data[0] + " " + data[1] + " " + data[2] + " " + data[3]);
         msgt.convertAndSend("/client/newAsteroid", data);
     }
     
@@ -54,5 +56,10 @@ public class StompMessagesHandler {
     public void handleInformAsteroidTouch(String playerId) {
         game.reduceLifeCount(playerId);
         msgt.convertAndSend("/client/updateLifes", game.getPlayerLifes());
+    }
+    
+    @MessageMapping("/eliminateAsteroid")
+    public void handleEliminateAsteroid(String asteroidId) {
+        msgt.convertAndSend("/client/eliminateAsteroid", asteroidId);
     }
 }

@@ -44,7 +44,7 @@ var ClientModule = (function () {
     var subscribeToNewAsteroids = function () {
         stompClient.subscribe("/client/newAsteroid", function (eventbody) {
             var data = JSON.parse(eventbody.body);
-            GameModule.addNewAsteroid(data[0], data[1], data[2]);
+            GameModule.addNewAsteroid(data[0], data[1], data[2], data[3]);
         });
     };
     
@@ -69,6 +69,13 @@ var ClientModule = (function () {
         });
     };
     
+    var subscribeToEliminateAsteroids = function () {
+        stompClient.subscribe("/client/eliminateAsteroid", function (eventbody) {
+            var asteroidId = JSON.parse(eventbody.body);
+            GameModule.eliminateAsteroid(asteroidId);
+        });
+    };
+    
     var sendUpdatePlayer = function (playerX, playerY, playerAngle) {
         stompClient.send("/app/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
@@ -86,6 +93,7 @@ var ClientModule = (function () {
         subscribeToPlayerShoots();
         subscribeToUpdatePoints();
         subscribeToPlayerLifes();
+        subscribeToEliminateAsteroids();
     };
     
     var playerShoots = function (playerX, playerY, playerAngle) {
@@ -98,8 +106,9 @@ var ClientModule = (function () {
         }
     };
     
-    var informAsteroidTouch = function () {
+    var informAsteroidTouch = function (asteroidId) {
         stompClient.send("/app/informAsteroidTouch", {}, playerId);
+        stompClient.send("/app/eliminateAsteroid", {}, asteroidId);
     };
     
     return {
