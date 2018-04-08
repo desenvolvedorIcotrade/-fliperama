@@ -22,6 +22,8 @@ public class StompMessagesHandler {
     public void handleRegisterPlayer(Player player) {
         if (game == null) game = new GameController(this);
         System.out.println("New Player Received = " + player.getPlayerId() + " " + player.getPlayerX() + " " + player.getPlayerY());
+        game.setPlayerLifes(player.getPlayerId(), 3);
+        game.setPlayerPoints(player.getPlayerId(), 0);
         msgt.convertAndSend("/client/newPlayer", player);
     }
     
@@ -46,5 +48,11 @@ public class StompMessagesHandler {
         game.asteroidDestroyedByPlayer(playerId);
         System.out.println("Player Points: " + game.getPlayerPoints());
         msgt.convertAndSend("/client/updatePoints", game.getPlayerPoints());
+    }
+    
+    @MessageMapping("/informAsteroidTouch")
+    public void handleInformAsteroidTouch(String playerId) {
+        game.reduceLifeCount(playerId);
+        msgt.convertAndSend("/client/updateLifes", game.getPlayerLifes());
     }
 }

@@ -62,6 +62,13 @@ var ClientModule = (function () {
         });
     };
     
+    var subscribeToPlayerLifes = function () {
+        stompClient.subscribe("/client/updateLifes", function (eventbody) {
+            var lifesList = JSON.parse(eventbody.body);
+            GameModule.updateLifes(lifesList);
+        });
+    };
+    
     var sendUpdatePlayer = function (playerX, playerY, playerAngle) {
         stompClient.send("/app/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
@@ -78,6 +85,7 @@ var ClientModule = (function () {
         subscribeToNewAsteroids();
         subscribeToPlayerShoots();
         subscribeToUpdatePoints();
+        subscribeToPlayerLifes();
     };
     
     var playerShoots = function (playerX, playerY, playerAngle) {
@@ -90,6 +98,10 @@ var ClientModule = (function () {
         }
     };
     
+    var informAsteroidTouch = function () {
+        stompClient.send("/app/informAsteroidTouch", {}, playerId);
+    };
+    
     return {
         connect: connect,
         registerPlayer: registerPlayer,
@@ -97,7 +109,8 @@ var ClientModule = (function () {
         updatePlayer: updatePlayer,
         sendUpdatePlayer: sendUpdatePlayer,
         playerShoots: playerShoots,
-        informAsteroidDestroyed: informAsteroidDestroyed
+        informAsteroidDestroyed: informAsteroidDestroyed,
+        informAsteroidTouch: informAsteroidTouch
     };
     
 }());

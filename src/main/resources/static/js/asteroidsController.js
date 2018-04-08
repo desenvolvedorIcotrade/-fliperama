@@ -5,6 +5,7 @@ var cursorKeys;
 var spaceKey;
 var shootFlag = false;
 var pointsText;
+var lifesText;
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
 var connected = false;
 var asteroidsGroup;
@@ -75,13 +76,22 @@ var GameModule = (function () {
         pointsText.setText(text);
     };
     
+    var updateLifes = function (lifesList) {
+        var text = "";
+        for (var _x = 0; _x < Object.keys(lifesList).length; _x++) {
+            text = text + Object.keys(lifesList)[_x] + " " + Object.values(lifesList)[_x] + "      ";
+        }
+        lifesText.setText(text);
+    };
+    
     return {
         addNewPlayer: addNewPlayer,
         getPlayerList: getPlayerList,
         addNewAsteroid: addNewAsteroid,
         playerShoots: playerShoots,
         destroyDeadAsteroids: destroyDeadAsteroids,
-        updatePoints: updatePoints
+        updatePoints: updatePoints,
+        updateLifes: updateLifes
     };
 }());
 
@@ -123,10 +133,19 @@ var statusMain = {
         });
         pointsText.anchor.setTo(0.5, 0.5);
         
+        lifesText = game.add.text(420, 585, "", {
+            font: "22px Arial",
+            fill: "#ffffff",
+            align: "center"
+        });
+        lifesText.anchor.setTo(0.5, 0.5);
+        
         var callback = {
             onSuccess:function () {
                 ClientModule.registerPlayer(playerX, playerY);
                 connected = true;
+                pointsText.setText(ClientModule.getPlayerId() + " 0");
+                lifesText.setText(ClientModule.getPlayerId() + " 3");
             },
             onFailure:function () {
                 //alert("Can't Connect to Game Server");
@@ -161,6 +180,7 @@ var statusMain = {
         
         GameModule.destroyDeadAsteroids();
         game.physics.arcade.overlap(bulletsGroup, asteroidsGroup, this.destroyAsteroid, null, this);
+        game.physics.arcade.overlap(player, asteroidsGroup, this.asteroidTouch, null, this);
         
         if (connected === true) { ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);}
     },
@@ -171,6 +191,10 @@ var statusMain = {
         asteroid.kill();
         bullet.kill();
         ClientModule.informAsteroidDestroyed(bullet.shooter);
+    },
+    asteroidTouch: function (plyr, asteroid) {
+        asteroid.kill();
+        ClientModule.informAsteroidTouch();
     }
 };
 
