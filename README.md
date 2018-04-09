@@ -6,7 +6,6 @@ COOP-Asteroids es un juego multijugador en línea basado en el clásico Asteroid
 ## Autores
 - Daniel Ospina
 - Juan Felipe Ortiz
-- Miguel Rojas
 
 ## [Jugar Ahora](http://coop-asteroids.herokuapp.com)
 
@@ -17,6 +16,8 @@ Movimiento de la nave.
 
 Disparar.
 <img src="https://www.wpclipart.com/computer/keyboard_keys/large_keys/computer_key_Space_bar.png" width="300" height="50">
+
+R - Admin Restart. Reinicia el juego para todos los clientes. Se implementará un método más seguro en cuanto a usuarios con este poder, pronto, ya que cualquier jugador puede reiniciar el juego.
 
 ## Desarrollo
 

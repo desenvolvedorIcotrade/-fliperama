@@ -63,5 +63,11 @@ public class GameController {
     public int getAndIncrementAsteroidId() {
         return asteroidId++;
     }
+
+    public void restart() {
+        this.asteroidId = 0;
+        playerPoints = new ConcurrentHashMap<>();
+        playerLifes = new ConcurrentHashMap<>();
+    }
     
 }

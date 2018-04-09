@@ -5,7 +5,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import co.edu.escuelaing.arsw.coopasteroids.model.Player;
-import java.util.List;
 
 /**
  *
@@ -61,5 +60,12 @@ public class StompMessagesHandler {
     @MessageMapping("/eliminateAsteroid")
     public void handleEliminateAsteroid(String asteroidId) {
         msgt.convertAndSend("/client/eliminateAsteroid", asteroidId);
+    }
+    
+    @MessageMapping("/restartGame")
+    public void handleGameRestart() {
+        System.out.println("Restarting game...");
+        game.restart();
+        msgt.convertAndSend("/client/gameRestart", "");
     }
 }

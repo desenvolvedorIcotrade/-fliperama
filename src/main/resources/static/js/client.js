@@ -76,6 +76,18 @@ var ClientModule = (function () {
         });
     };
     
+    var restartGame = function (local) {
+        alert("Game Restarted By Admin...");
+        location.reload();
+        if (local === true) { stompClient.send("/app/restartGame", {}, null); }
+    };
+    
+    var subscribeToGameRestart = function () {
+        stompClient.subscribe("/client/gameRestart", function () {
+            restartGame(false);
+        });
+    };
+    
     var sendUpdatePlayer = function (playerX, playerY, playerAngle) {
         stompClient.send("/app/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
@@ -94,6 +106,7 @@ var ClientModule = (function () {
         subscribeToUpdatePoints();
         subscribeToPlayerLifes();
         subscribeToEliminateAsteroids();
+        subscribeToGameRestart();
     };
     
     var playerShoots = function (playerX, playerY, playerAngle) {
@@ -119,7 +132,8 @@ var ClientModule = (function () {
         sendUpdatePlayer: sendUpdatePlayer,
         playerShoots: playerShoots,
         informAsteroidDestroyed: informAsteroidDestroyed,
-        informAsteroidTouch: informAsteroidTouch
+        informAsteroidTouch: informAsteroidTouch,
+        restartGame: restartGame
     };
     
 }());
