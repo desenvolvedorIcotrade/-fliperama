@@ -3,7 +3,8 @@
 var ClientModule = (function () {
     
     var stompClient = null;
-    var playerId = null;
+    var playerId = 100; //esto deberia ser sacado una vez por partida del api rest
+    var fullPlayer = null;
     
     var connect = function (callback) {
         var socket = new SockJS("/stompendpoint");
@@ -54,14 +55,42 @@ var ClientModule = (function () {
         stompClient.send("/app/registerPlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY}));
         subscribeToNewPlayers();
         subscribeToPlayerUpdates();
+        subscribeToFullCells();
     };
     
+    //Suscribe to newFullCells
+    var subscribeToFullCells = function () {
+        
+        //Topico para nuevas celulas de combustion
+        stompClient.subscribe("/client/newFullCell", function (eventbody) {
+            //GameModule.addNewPlayer(JSON.parse(eventbody.body));
+            var data = JSON.parse(eventbody.body);
+            GameModule.addNewFullCell(data[0], data[1], data[2]);
+        });
+        
+        //Topico para cuando toman una celula
+        stompClient.subscribe("/client/takefullCell", function (eventbody) {
+            //GameModule.addNewPlayer(JSON.parse(eventbody.body));
+            console.log(eventbody.body);
+            var data = JSON.parse(eventbody.body);
+            GameModule.eliminateFullCell(data);
+        });
+        
+        
+    };
+    
+    var takeFullCell = function (index) {
+        fullPlayer += 5;
+        stompClient.send("/app/takeFullCell", {}, JSON.stringify(index));
+
+    };
     return {
         connect: connect,
         registerPlayer: registerPlayer,
         getPlayerId:getPlayerId,
         updatePlayer: updatePlayer,
-        sendUpdatePlayer: sendUpdatePlayer
+        sendUpdatePlayer: sendUpdatePlayer,
+        takeFullCell: takeFullCell
     };
     
 }());

@@ -13,8 +13,8 @@ public class FullCell {
     
     private double fullX;
     private double fullY;
-    private String fullId;
-    //private int playerAngle;
+   
+
 
     public double getFullX() {
         return fullX;
@@ -31,15 +31,5 @@ public class FullCell {
     public void setFullY(double fullY) {
         this.fullY = fullY;
     }
-
-    public String getFullId() {
-        return fullId;
-    }
-
-    public void setFullId(String fullId) {
-        this.fullId = fullId;
-    }
-    
-    
-    
+      
 }
