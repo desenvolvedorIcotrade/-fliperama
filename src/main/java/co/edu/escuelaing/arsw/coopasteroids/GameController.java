@@ -18,7 +18,6 @@ public class GameController {
     private ConcurrentHashMap<String, Integer> playerPoints;
     private ConcurrentHashMap<String, Integer> playerLifes;
     private int asteroidId;
-    private ScheduledExecutorService ex;
     
     public GameController(StompMessagesHandler s) {
         this.asteroidId = 0;
@@ -30,7 +29,7 @@ public class GameController {
     }
 
     private void spawnAsteroids() {
-        ex = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable r = new AsteroidRunnable(s);
         ex.scheduleAtFixedRate(r, 0, 2500, TimeUnit.MILLISECONDS);
     }
@@ -65,7 +64,7 @@ public class GameController {
         return asteroidId++;
     }
 
-    void restart() {
+    public void restart() {
         this.asteroidId = 0;
         playerPoints = new ConcurrentHashMap<>();
         playerLifes = new ConcurrentHashMap<>();

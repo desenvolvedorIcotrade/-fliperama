@@ -90,7 +90,7 @@ var GameModule = (function () {
     
     var eliminateAsteroid = function (astId) {
         var asteroidSprite = asteroidsGroup.getByName(astId);
-        if (asteroidSprite !== null) asteroidSprite.kill();
+        if (asteroidSprite !== null) { asteroidSprite.kill(); }
     };
     
     var testGameRestart = function () {

@@ -76,6 +76,12 @@ var ClientModule = (function () {
         });
     };
     
+    var restartGame = function (local) {
+        alert("Game Restarted By Admin...");
+        location.reload();
+        if (local === true) { stompClient.send("/app/restartGame", {}, null); }
+    };
+    
     var subscribeToGameRestart = function () {
         stompClient.subscribe("/client/gameRestart", function () {
             restartGame(false);
@@ -116,12 +122,6 @@ var ClientModule = (function () {
     var informAsteroidTouch = function (asteroidId) {
         stompClient.send("/app/informAsteroidTouch", {}, playerId);
         stompClient.send("/app/eliminateAsteroid", {}, asteroidId);
-    };
-    
-    var restartGame = function (local) {
-        alert("Game Restarted By Admin...");
-        location.reload();
-        if (local === true) stompClient.send("/app/restartGame", {}, null);
     };
     
     return {
