@@ -4,6 +4,7 @@ var player;
 var cursorKeys;
 var spaceKey;
 var shootFlag = false;
+var restartFlag = false;
 var pointsText;
 var lifesText;
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
@@ -82,14 +83,21 @@ var GameModule = (function () {
         var keysList= Object.keys(lifesList);
         var valuesList = Object.values(lifesList);
         for (var _x = 0; _x < Object.keys(lifesList).length; _x++) {
-            text = text + keysList[_x] + " " + valuesList[_x] + "      ";
+            text = text + keysList[_x] + " Lifes " + valuesList[_x] + "      ";
         }
         lifesText.setText(text);
     };
     
     var eliminateAsteroid = function (astId) {
         var asteroidSprite = asteroidsGroup.getByName(astId);
-        asteroidSprite.kill();
+        if (asteroidSprite !== null) asteroidSprite.kill();
+    };
+    
+    var testGameRestart = function () {
+        if (spaceKey.r_key.isDown && (restartFlag === false)) {
+            restartFlag = true;
+            ClientModule.restartGame(true);
+        }
     };
     
     return {
@@ -100,7 +108,8 @@ var GameModule = (function () {
         destroyDeadAsteroids: destroyDeadAsteroids,
         updatePoints: updatePoints,
         updateLifes: updateLifes,
-        eliminateAsteroid: eliminateAsteroid
+        eliminateAsteroid: eliminateAsteroid,
+        testGameRestart: testGameRestart
     };
 }());
 
@@ -120,7 +129,7 @@ var statusMain = {
         player.animations.add("acceleration", [0, 1], 15, true);
         
         cursorKeys = game.input.keyboard.createCursorKeys();
-        spaceKey = game.input.keyboard.addKeys({"space":Phaser.KeyCode.SPACEBAR});
+        spaceKey = game.input.keyboard.addKeys({"space":Phaser.KeyCode.SPACEBAR, "r_key":Phaser.KeyCode.R});
 
         game.physics.startSystem(Phaser.Physics.ARCADE);
         game.physics.arcade.enable(player);
@@ -154,7 +163,7 @@ var statusMain = {
                 ClientModule.registerPlayer(playerX, playerY);
                 connected = true;
                 pointsText.setText(ClientModule.getPlayerId() + " 0");
-                lifesText.setText(ClientModule.getPlayerId() + " 3");
+                lifesText.setText(ClientModule.getPlayerId() + " Lifes 3");
             },
             onFailure:function () {
                 //alert("Can't Connect to Game Server");
@@ -187,6 +196,8 @@ var statusMain = {
             shootFlag = false;
         }
         
+        GameModule.testGameRestart();
+        
         GameModule.destroyDeadAsteroids();
         game.physics.arcade.overlap(bulletsGroup, asteroidsGroup, this.destroyAsteroid, null, this);
         game.physics.arcade.overlap(player, asteroidsGroup, this.asteroidTouch, null, this);
@@ -202,6 +213,7 @@ var statusMain = {
         ClientModule.informAsteroidDestroyed(bullet.shooter);
     },
     asteroidTouch: function (plyr, asteroid) {
+        asteroid.kill();
         ClientModule.informAsteroidTouch(asteroid.name);
     }
 };
