@@ -43,6 +43,53 @@ var ClientModule = (function () {
         });
     };
     
+    var subscribeToNewAsteroids = function () {
+        stompClient.subscribe("/client/newAsteroid", function (eventbody) {
+            var data = JSON.parse(eventbody.body);
+            GameModule.addNewAsteroid(data[0], data[1], data[2], data[3]);
+        });
+    };
+    
+    var subscribeToPlayerShoots = function () {
+        stompClient.subscribe("/client/playerShoots", function (eventbody) {
+            var data = JSON.parse(eventbody.body);
+            GameModule.playerShoots(data.playerX, data.playerY, data.playerAngle, data.playerId);
+        });
+    };
+    
+    var subscribeToUpdatePoints = function () {
+        stompClient.subscribe("/client/updatePoints", function (eventbody) {
+            var pointsList = JSON.parse(eventbody.body);
+            GameModule.updatePoints(pointsList);
+        });
+    };
+    
+    var subscribeToPlayerLifes = function () {
+        stompClient.subscribe("/client/updateLifes", function (eventbody) {
+            var lifesList = JSON.parse(eventbody.body);
+            GameModule.updateLifes(lifesList);
+        });
+    };
+    
+    var subscribeToEliminateAsteroids = function () {
+        stompClient.subscribe("/client/eliminateAsteroid", function (eventbody) {
+            var asteroidId = JSON.parse(eventbody.body);
+            GameModule.eliminateAsteroid(asteroidId);
+        });
+    };
+    
+    var restartGame = function (local) {
+        alert("Game Restarted By Admin...");
+        location.reload();
+        if (local === true) { stompClient.send("/app/restartGame", {}, null); }
+    };
+    
+    var subscribeToGameRestart = function () {
+        stompClient.subscribe("/client/gameRestart", function () {
+            restartGame(false);
+        });
+    };
+    
     var sendUpdatePlayer = function (playerX, playerY, playerAngle) {
         stompClient.send("/app/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
@@ -56,6 +103,14 @@ var ClientModule = (function () {
         stompClient.send("/app/registerPlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY}));
         subscribeToNewPlayers();
         subscribeToPlayerUpdates();
+        
+        subscribeToNewAsteroids();
+        subscribeToPlayerShoots();
+        subscribeToUpdatePoints();
+        subscribeToPlayerLifes();
+        subscribeToEliminateAsteroids();
+        subscribeToGameRestart();
+
         subscribeToFullCells();
         suscribeToLives();
     };
@@ -97,15 +152,28 @@ var ClientModule = (function () {
         stompClient.subscribe("/client/takeCellLife", function (eventbody) { 
             var data = JSON.parse(eventbody.body);
             GameModule.eliminateCellLife(data.indexCell);
-        });
-        
-        
+        });  
     };
     
     var takeCellLife = function (index) {
         playerLives += 1;
         stompClient.send("/client/takeCellLife", {}, JSON.stringify({indexCell: index}));
-
+     
+    };
+    
+    var playerShoots = function (playerX, playerY, playerAngle) {
+        stompClient.send("/app/playerShoots", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
+    };
+    
+    var informAsteroidDestroyed = function (shooter) {
+        if (shooter === playerId) {
+            stompClient.send("/app/informAsteroidDestroyed", {}, shooter);
+        }
+    };
+    
+    var informAsteroidTouch = function (asteroidId) {
+        stompClient.send("/app/informAsteroidTouch", {}, playerId);
+        stompClient.send("/app/eliminateAsteroid", {}, asteroidId);
     };
     
     return {
@@ -114,8 +182,15 @@ var ClientModule = (function () {
         getPlayerId:getPlayerId,
         updatePlayer: updatePlayer,
         sendUpdatePlayer: sendUpdatePlayer,
+
         takeFullCell: takeFullCell,
-        takeCellLife: takeCellLife
+        takeCellLife: takeCellLife,
+        
+        playerShoots: playerShoots,
+        informAsteroidDestroyed: informAsteroidDestroyed,
+        informAsteroidTouch: informAsteroidTouch,
+        restartGame: restartGame
+
     };
     
 }());
