@@ -24,3 +24,5 @@ R - Admin Restart. Reinicia el juego para todos los clientes. Se implementará u
 ### Estado de Tests en CircleCI:   [![CircleCI](https://circleci.com/gh/ECI-ORO/COOP-Asteroids/tree/master.svg)](https://circleci.com/gh/ECI-ORO/COOP-Asteroids/tree/master)
 URL: [https://circleci.com/gh/ECI-ORO/COOP-Asteroids](https://circleci.com/gh/ECI-ORO/COOP-Asteroids)
 ### [Análisis de Código] Codacy: [ ![Codacy Badge](https://api.codacy.com/project/badge/Grade/c164769d6f3a417cb1b4daaecc47ee2f)](https://www.codacy.com/app/danielospina-b/COOP-Asteroids?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ECI-ORO/COOP-Asteroids&amp;utm_campaign=Badge_Grade)
+
+### Trello: [https://trello.com/b/vWv5rvdC/coop-asteroids](https://trello.com/b/vWv5rvdC/coop-asteroids)
