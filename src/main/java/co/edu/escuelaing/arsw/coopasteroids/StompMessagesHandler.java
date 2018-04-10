@@ -36,18 +36,14 @@ public class StompMessagesHandler {
         msgt.convertAndSend("/client/playerUpdate", player);
     }
     
-    @MessageMapping("/takeFullCell")
-    public void handleTakeFullCell(int index) {
-        game.takeFullCell();
-        msgt.convertAndSend("/client/takeFullCell", index);
-    }
-    
     public void handleAddFullCell(int[] data) {
         System.out.println("New FullCell sent: " + data[0] + " " + data[1] + " " + data[2]);
         msgt.convertAndSend("/client/newFullCell", data);
     }
     
-    
-    
-    
+    public void handleAddLifeCell(int[] data) {
+        System.out.println("New LifeCell sent: " + data[0] + " " + data[1]);
+        msgt.convertAndSend("/client/newCellLife", data);
+    }
+       
 }

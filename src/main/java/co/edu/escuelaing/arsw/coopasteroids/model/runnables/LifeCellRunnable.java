@@ -14,37 +14,33 @@ import java.util.logging.Logger;
  *
  * @author juan
  */
-public class FullCellRunnable implements Runnable {
+public class LifeCellRunnable implements Runnable {
 
     private final StompMessagesHandler s;
 
     private final GameController gc;
 
-    public FullCellRunnable(StompMessagesHandler s, GameController gc) {
+    public LifeCellRunnable(StompMessagesHandler s, GameController gc) {
         this.s = s;
         this.gc = gc;
     }
 
     @Override
     public void run() {
-        try {        
-            int[] data = asteroidSpawnPosition();
-            s.handleAddFullCell(data);
+        try {
+            int[] data = lifeSpawnPosition();
+            s.handleAddLifeCell(data);
 
         } catch (Exception ex) {
-            Logger.getLogger(FullCellRunnable.class.getName()).log(Level.SEVERE, "Error en FullCellRunnable", ex);
+            Logger.getLogger(LifeCellRunnable.class.getName()).log(Level.SEVERE, "Error en LifeCellRunnable", ex);
         }
-
     }
 
-    private int[] asteroidSpawnPosition() {
+    private int[] lifeSpawnPosition() {
         int posX = (int) (Math.random() * 800);
         int posY = (int) (Math.random() * 600);
 
-        //Direction
-        int asteroidAngle = (int) ((Math.atan2(posY, posX) * 180) / Math.PI);
-
-        return new int[]{posX, posY, asteroidAngle};
+        return new int[]{posX, posY};
     }
 
 }

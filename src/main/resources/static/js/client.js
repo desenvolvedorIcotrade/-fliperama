@@ -4,6 +4,7 @@ var ClientModule = (function () {
     
     var stompClient = null;
     var playerId = 100; //esto deberia ser sacado una vez por partida del api rest
+    var playerLives = 3;
     var fullPlayer = null;
     
     var connect = function (callback) {
@@ -56,24 +57,22 @@ var ClientModule = (function () {
         subscribeToNewPlayers();
         subscribeToPlayerUpdates();
         subscribeToFullCells();
+        suscribeToLives();
     };
     
     //Suscribe to newFullCells
     var subscribeToFullCells = function () {
         
         //Topico para nuevas celulas de combustion
-        stompClient.subscribe("/client/newFullCell", function (eventbody) {
-            //GameModule.addNewPlayer(JSON.parse(eventbody.body));
+        stompClient.subscribe("/client/newFullCell", function (eventbody) {           
             var data = JSON.parse(eventbody.body);
             GameModule.addNewFullCell(data[0], data[1], data[2]);
         });
         
         //Topico para cuando toman una celula
-        stompClient.subscribe("/client/takefullCell", function (eventbody) {
-            //GameModule.addNewPlayer(JSON.parse(eventbody.body));
-            console.log(eventbody.body);
+        stompClient.subscribe("/client/takefullCell", function (eventbody) { 
             var data = JSON.parse(eventbody.body);
-            GameModule.eliminateFullCell(data);
+            GameModule.eliminateFullCell(data.indexCell);
         });
         
         
@@ -81,16 +80,42 @@ var ClientModule = (function () {
     
     var takeFullCell = function (index) {
         fullPlayer += 5;
-        stompClient.send("/app/takeFullCell", {}, JSON.stringify(index));
+        stompClient.send("/client/takefullCell", {}, JSON.stringify({indexCell: index}));
 
     };
+    
+    //Suscribe to newLives
+    var suscribeToLives = function () {
+        
+        //Topico para nuevas vidas
+        stompClient.subscribe("/client/newCellLife", function (eventbody) {           
+            var data = JSON.parse(eventbody.body);
+            GameModule.addNewCellLife(data[0], data[1]);
+        });
+        
+        //Topico para cuando toman una vida
+        stompClient.subscribe("/client/takeCellLife", function (eventbody) { 
+            var data = JSON.parse(eventbody.body);
+            GameModule.eliminateCellLife(data.indexCell);
+        });
+        
+        
+    };
+    
+    var takeCellLife = function (index) {
+        playerLives += 1;
+        stompClient.send("/client/takeCellLife", {}, JSON.stringify({indexCell: index}));
+
+    };
+    
     return {
         connect: connect,
         registerPlayer: registerPlayer,
         getPlayerId:getPlayerId,
         updatePlayer: updatePlayer,
         sendUpdatePlayer: sendUpdatePlayer,
-        takeFullCell: takeFullCell
+        takeFullCell: takeFullCell,
+        takeCellLife: takeCellLife
     };
     
 }());

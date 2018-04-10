@@ -20,7 +20,7 @@ var GameModule = (function () {
 
         var fullCell = fullCells.getFirstDead();
 
-        if (fullCell !== null) {
+        if (fullCell) {
             fullCell.anchor.setTo(0.5);
             fullCell.scale.setTo(0.7);
 
@@ -39,21 +39,49 @@ var GameModule = (function () {
 
             //Take FullCell
             fullCell.events.onDestroy.add(function () {
-                //Sonido               
+                //Sonido combustible cogido               
             }, this);
         }
 
 
     };
+    
     var takeFullCell = function (player, cell) {
-        console.log("Combustible Cogido :" + cell.z);
         //Aumentar Combustible y actualiza
         ClientModule.takeFullCell(cell.z);
     };
 
     var eliminateFullCell = function (index) {
-        var killFullIndex = fullCells.getChildAt(index);
-        killFullIndex.Kill();
+        var killFull = Object(fullCells.getChildAt(index));
+        killFull.kill();
+    };
+    
+    var addNewCellLife = function (posX, posY) {
+        var life = lives.getFirstDead();
+
+        if (life !== null) {
+            life.anchor.setTo(0.5);
+            life.scale.setTo(0.7);
+
+            life.reset(posX, posY);
+
+            game.physics.arcade.enable(life);
+            
+            //Take cellLife
+            life.events.onDestroy.add(function () {
+                //Sonido vida cogida               
+            }, this);
+        }
+    };
+    
+    var takeCellLife = function (player, cell) {
+        //Aumentar vida y actualiza
+        ClientModule.takeCellLife(cell.z);
+    };
+
+    var eliminateCellLife = function (index) {
+        var killLife = Object(lives.getChildAt(index));
+        killLife.kill();
     };
 
     return {
@@ -61,7 +89,10 @@ var GameModule = (function () {
         getPlayerList: getPlayerList,
         addNewFullCell: addNewFullCell,
         eliminateFullCell: eliminateFullCell,
-        takeFullCell: takeFullCell
+        takeFullCell: takeFullCell,
+        addNewCellLife: addNewCellLife,
+        takeCellLife: takeCellLife,
+        eliminateCellLife: eliminateCellLife
     };
 
 })();
@@ -70,12 +101,7 @@ var player;
 var cursorKeys;
 var fullCells;
 var bg;
-var timerFull;
 var lives;
-var timerLives;
-
-var indexFullDead;
-
 
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
 
@@ -111,19 +137,13 @@ var statusMain = {
 
         game.stage.disableVisibilityChange = true;
 
-        ///////////////
         fullCells = game.add.group();
         fullCells.enableBody = true;
         fullCells.createMultiple(3, "fullCell");
-        ///////////////
 
         lives = game.add.group();
         lives.enableBody = true;
         lives.createMultiple(3, "life");
-
-        //timerFull = game.time.events.loop(45000, this.newFullCell, this);
-        timerLives = game.time.events.loop(60000, this.newLife, this);
-
 
         callback = {
             onSuccess: function () {
@@ -160,31 +180,15 @@ var statusMain = {
             player.frame = 0;
         }
 
-
         //collision of the cells with the spaceship
         game.physics.arcade.overlap(player, fullCells, GameModule.takeFullCell, null, this);
         //collision of the life with the spaceship
-        game.physics.arcade.overlap(player, lives, this.takeLife, null, this);
+        game.physics.arcade.overlap(player, lives, GameModule.takeCellLife, null, this);
 
         //Multiplayer position update
         if (connected === true) {
             ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);
         }
-    },
-    newLife: function () {
-        var life = lives.getFirstDead();
-
-        if (life !== null) {
-            life.anchor.setTo(0.5);
-            life.scale.setTo(0.7);
-
-            life.reset(Math.floor(Math.random() * 801), Math.floor(Math.random() * 601));
-
-            game.physics.arcade.enable(life);
-        }
-    },
-    takeLife: function (p, life) {
-        life.kill();
     }
 };
 

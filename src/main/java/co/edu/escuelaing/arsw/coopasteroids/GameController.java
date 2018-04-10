@@ -6,6 +6,7 @@
 package co.edu.escuelaing.arsw.coopasteroids;
 
 import co.edu.escuelaing.arsw.coopasteroids.model.runnables.FullCellRunnable;
+import co.edu.escuelaing.arsw.coopasteroids.model.runnables.LifeCellRunnable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -19,13 +20,13 @@ public class GameController {
     
     private final StompMessagesHandler s;
     
-    public AtomicInteger fullCellInGame = new AtomicInteger(0);
+    //public AtomicInteger fullCellInGame = new AtomicInteger(0);
     
     public GameController(StompMessagesHandler s) {
         System.out.println("New Game Instance created");
         this.s = s;
         spawnFullCells();
-        
+        spawnLifeCells();
     }
 
     private void spawnFullCells() {
@@ -34,9 +35,10 @@ public class GameController {
         ex.scheduleAtFixedRate(r, 45000, 45000, TimeUnit.MILLISECONDS);
     }
     
-    public void takeFullCell(){
-        fullCellInGame.decrementAndGet();
+    private void spawnLifeCells() {
+        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
+        Runnable r = new LifeCellRunnable(s,this);
+        ex.scheduleAtFixedRate(r, 60000, 60000, TimeUnit.MILLISECONDS);
     }
-
     
 }
