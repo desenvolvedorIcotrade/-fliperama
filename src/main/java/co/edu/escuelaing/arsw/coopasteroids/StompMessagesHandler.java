@@ -1,5 +1,6 @@
 package co.edu.escuelaing.arsw.coopasteroids;
 
+import co.edu.escuelaing.arsw.coopasteroids.model.FullCell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -8,7 +9,7 @@ import co.edu.escuelaing.arsw.coopasteroids.model.Player;
 
 /**
  *
- * @author Daniel Ospina
+ * @author Daniel Ospina - Juan Ortiz
  */
 @Controller
 public class StompMessagesHandler {
@@ -31,6 +32,18 @@ public class StompMessagesHandler {
     public void handleUpdatePlayer(Player player) {
         msgt.convertAndSend("/client/playerUpdate", player);
     }
+    
+
+    public void handleAddFullCell(int[] data) {
+        System.out.println("New FullCell sent: " + data[0] + " " + data[1] + " " + data[2]);
+        msgt.convertAndSend("/client/newFullCell", data);
+    }
+    
+    public void handleAddLifeCell(int[] data) {
+        System.out.println("New LifeCell sent: " + data[0] + " " + data[1]);
+        msgt.convertAndSend("/client/newCellLife", data);
+    }
+
     
     public void handleAddNewAsteroid(int[] data) {
         data[3] = game.getAndIncrementAsteroidId();
@@ -68,4 +81,5 @@ public class StompMessagesHandler {
         game.restart();
         msgt.convertAndSend("/client/gameRestart", "");
     }
+
 }
