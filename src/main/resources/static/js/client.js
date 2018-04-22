@@ -5,7 +5,7 @@ var ClientModule = (function () {
     var stompClient = null;
     var playerId = 100; //esto deberia ser sacado una vez por partida del api rest
     var playerLives = 3;
-    var fullPlayer = null;
+    var fullPlayer = 150;
     
     var connect = function (callback) {
         var socket = new SockJS("/stompendpoint");
@@ -113,6 +113,29 @@ var ClientModule = (function () {
 
         subscribeToFullCells();
         suscribeToLives();
+        
+        subscribeToBarFuel();
+    };
+    
+    //Suscribe to BarFuel
+    var subscribeToBarFuel = function () {
+        
+        //Topico para nuevas barras de combustible
+        stompClient.subscribe("/client/newBarFuel", function (eventbody) {           
+            GameModule.addNewBarFuel(JSON.parse(eventbody.body));
+        });
+        
+        //Topico para actualizar el combustible de los jugadore
+        stompClient.subscribe("/client/updateBarFuels", function (eventbody) { 
+            var data = JSON.parse(eventbody.body);
+            GameModule.eliminateFullCell(data.indexCell);
+        });
+                
+    };
+    
+    var updateBarFuels = function (){
+        fullPlayer -= 0.5;
+        stompClient.send("/client/updateBarFuels", {}, JSON.stringify({indexCell: index}));
     };
     
     //Suscribe to newFullCells
@@ -134,7 +157,7 @@ var ClientModule = (function () {
     };
     
     var takeFullCell = function (index) {
-        fullPlayer += 5;
+        fullPlayer += 10;
         stompClient.send("/client/takefullCell", {}, JSON.stringify({indexCell: index}));
 
     };
@@ -176,6 +199,10 @@ var ClientModule = (function () {
         stompClient.send("/app/eliminateAsteroid", {}, asteroidId);
     };
     
+    var getPlayerFuel = function () {
+        return fullPlayer;
+    };
+    
     return {
         connect: connect,
         registerPlayer: registerPlayer,
@@ -189,7 +216,10 @@ var ClientModule = (function () {
         playerShoots: playerShoots,
         informAsteroidDestroyed: informAsteroidDestroyed,
         informAsteroidTouch: informAsteroidTouch,
-        restartGame: restartGame
+        restartGame: restartGame,
+        
+        getPlayerFuel: getPlayerFuel,
+        updateBarFuels: updateBarFuels
 
     };
     

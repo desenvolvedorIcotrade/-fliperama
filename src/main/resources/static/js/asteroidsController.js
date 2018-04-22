@@ -14,7 +14,9 @@ var bulletsGroup;
 var fullCells;
 var bg;
 var lives;
-
+var fullBarsGroup;
+//var fullText;
+var flag=0;
 
 var GameModule = (function () {
 
@@ -59,7 +61,7 @@ var GameModule = (function () {
             }, this);
         }
     };
-    
+
     var takeFullCell = function (player, cell) {
         //Aumentar Combustible y actualiza
         ClientModule.takeFullCell(cell.z);
@@ -69,7 +71,7 @@ var GameModule = (function () {
         var killFull = Object(fullCells.getChildAt(index));
         killFull.kill();
     };
-    
+
     var addNewCellLife = function (posX, posY) {
         var life = lives.getFirstDead();
 
@@ -80,14 +82,14 @@ var GameModule = (function () {
             life.reset(posX, posY);
 
             game.physics.arcade.enable(life);
-            
+
             //Take cellLife
             life.events.onDestroy.add(function () {
                 //Sonido vida cogida               
             }, this);
         }
     };
-    
+
     var takeCellLife = function (player, cell) {
         //Aumentar vida y actualiza
         ClientModule.takeCellLife(cell.z);
@@ -98,71 +100,77 @@ var GameModule = (function () {
         killLife.kill();
     };
 
-    var addNewAsteroid = function(posX, posY, angle, asteroidId) {
-        
+    var addNewAsteroid = function (posX, posY, angle, asteroidId) {
+
         var asteroid1 = game.add.sprite(posX, posY, "asteroid1");
-        
+
         game.physics.arcade.enable(asteroid1);
         asteroid1.body.collideWorldBounds = false;
         asteroid1.checkWorldBounds = true;
-        asteroid1.events.onOutOfBounds.add(function() {asteroid1.destroy();}, this);
+        asteroid1.events.onOutOfBounds.add(function () {
+            asteroid1.destroy();
+        }, this);
         asteroidsGroup.add(asteroid1);
-        
+
         asteroid1.name = asteroidId;
-        asteroid1.angle = angle;     
+        asteroid1.angle = angle;
         asteroid1.anchor.setTo(0.5);
-        asteroid1.body.velocity.x = 50 * Math.cos((asteroid1.angle)*Math.PI/180);
-        asteroid1.body.velocity.y = 50 * Math.sin((asteroid1.angle)*Math.PI/180);
+        asteroid1.body.velocity.x = 50 * Math.cos((asteroid1.angle) * Math.PI / 180);
+        asteroid1.body.velocity.y = 50 * Math.sin((asteroid1.angle) * Math.PI / 180);
     };
-    
+
     var playerShoots = function (posX, posY, angle, playerId) {
-        
+
         var bullet = game.add.sprite(posX, posY, "bala1");
         game.physics.arcade.enable(bullet);
         bullet.body.collideWorldBounds = false;
         bullet.checkWorldBounds = true;
-        bullet.events.onOutOfBounds.add(function() {bullet.destroy();}, this);
+        bullet.events.onOutOfBounds.add(function () {
+            bullet.destroy();
+        }, this);
         bulletsGroup.add(bullet);
-        
+
         bullet.angle = angle - 90;
         bullet.shooter = playerId;
         bullet.anchor.setTo(0.5);
-        bullet.body.velocity.x = 400 * Math.cos((bullet.angle)*Math.PI/180);
-        bullet.body.velocity.y = 400 * Math.sin((bullet.angle)*Math.PI/180);
-        
+        bullet.body.velocity.x = 400 * Math.cos((bullet.angle) * Math.PI / 180);
+        bullet.body.velocity.y = 400 * Math.sin((bullet.angle) * Math.PI / 180);
+
     };
-    
+
     var destroyDeadAsteroids = function () {
         asteroidsGroup.forEachDead(function (asteroid) {
             asteroid.destroy();
         });
     };
-    
+
     var updatePoints = function (pointsList) {
         var text = "";
-        var keysList= Object.keys(pointsList);
+        var keysList = Object.keys(pointsList);
         var valuesList = Object.values(pointsList);
         for (var _x = 0; _x < Object.keys(pointsList).length; _x++) {
             text = text + keysList[_x] + " " + valuesList[_x] + "      ";
         }
         pointsText.setText(text);
     };
-    
+
     var updateLifes = function (lifesList) {
         var text = "";
-        var keysList= Object.keys(lifesList);
+        var keysList = Object.keys(lifesList);
         var valuesList = Object.values(lifesList);
         for (var _x = 0; _x < Object.keys(lifesList).length; _x++) {
-            text = text + keysList[_x] + " Lifes " + valuesList[_x] + "      ";
+            text = text + "     Lifes " + valuesList[_x] + "      ";
         }
         lifesText.setText(text);
     };
-    
+
     var eliminateAsteroid = function (astId) {
         var asteroidSprite = asteroidsGroup.getByName(astId);
-        if (asteroidSprite !== null) { asteroidSprite.kill(); }
+        if (asteroidSprite !== null) {
+            asteroidSprite.kill();
+        }
     };
-    
+
     var testGameRestart = function () {
         if (spaceKey.r_key.isDown && (restartFlag === false)) {
             restartFlag = true;
@@ -170,6 +178,28 @@ var GameModule = (function () {
         }
     };
     
+    var addNewBarFuel = function (playerData) {
+        
+        var fullText = game.add.text(10, 10+flag, "", {
+            font: "22px Arial",
+            fill: "#ffffff",
+            align: "center"
+        });
+        
+        fullText.setText(" Combustible - " + playerData.playerId);
+        
+        var fullBar = fullBarsGroup.getFirstDead();
+        
+        fullBar = game.add.sprite(5, 32+flag, fullBar);
+        fullBar.anchor.y = 0.5;
+        flag+10;
+        
+    };
+    
+    var updateBarFuel = function (){
+        
+    };
+
     return {
         addNewPlayer: addNewPlayer,
         getPlayerList: getPlayerList,
@@ -185,7 +215,9 @@ var GameModule = (function () {
         takeFullCell: takeFullCell,
         addNewCellLife: addNewCellLife,
         takeCellLife: takeCellLife,
-        eliminateCellLife: eliminateCellLife
+        eliminateCellLife: eliminateCellLife,
+        addNewBarFuel: addNewBarFuel,
+        updateBarFuel:updateBarFuel
 
     };
 
@@ -215,9 +247,9 @@ var statusMain = {
         player = game.add.sprite(playerX, playerY, "player");
         player.anchor.setTo(0.5);
         player.animations.add("acceleration", [0, 1], 15, true);
-        
+
         cursorKeys = game.input.keyboard.createCursorKeys();
-        spaceKey = game.input.keyboard.addKeys({"space":Phaser.KeyCode.SPACEBAR, "r_key":Phaser.KeyCode.R});
+        spaceKey = game.input.keyboard.addKeys({"space": Phaser.KeyCode.SPACEBAR, "r_key": Phaser.KeyCode.R});
 
         game.physics.startSystem(Phaser.Physics.ARCADE);
         game.physics.arcade.enable(player);
@@ -235,12 +267,23 @@ var statusMain = {
         lives = game.add.group();
         lives.enableBody = true;
         lives.createMultiple(3, "life");
-    
+
         asteroidsGroup = game.add.group();
         asteroidsGroup.enableBody = true;
         bulletsGroup = game.add.group();
         bulletsGroup.enableBody = true;
         
+        //create bar fuel
+        var fullBar = game.add.bitmapData(150, 10);
+        fullBar.ctx.beginPath();
+        fullBar.ctx.rect(0, 0, 180, 30);
+        fullBar.ctx.fillStyle = '#00FFFF';
+        fullBar.ctx.fill();
+        
+        fullBarsGroup = game.add.group();
+        fullBarsGroup.enableBody = true;
+        fullBarsGroup.createMultiple(4, fullBar);
+
         pointsText = game.add.text(420, 15, "", {
             font: "22px Arial",
             fill: "#ffffff",
@@ -254,14 +297,15 @@ var statusMain = {
             align: "center"
         });
         lifesText.anchor.setTo(0.5, 0.5);
-        
+
+
         var callback = {
-            onSuccess:function () {
+            onSuccess: function () {
 
                 ClientModule.registerPlayer(playerX, playerY);
                 connected = true;
                 pointsText.setText(ClientModule.getPlayerId() + " 0");
-                lifesText.setText(ClientModule.getPlayerId() + " Lifes 3");
+                lifesText.setText(" Lifes 3");
             },
             onFailure: function () {
                 //alert("Can't Connect to Game Server");
@@ -281,12 +325,18 @@ var statusMain = {
         } else if (cursorKeys.left.isDown) {
             player.angle -= 4;
         }
-        if (cursorKeys.up.isDown) {
+        if (cursorKeys.up.isDown && (ClientModule.getPlayerFuel() !== 0)) {
             player.animations.play("acceleration");
 
             player.body.velocity.x += Math.cos((player.angle - 90) * Math.PI / 180);
 
             player.body.velocity.y += Math.sin((player.angle - 90) * Math.PI / 180);
+            
+            //empty fuel
+            
+            barWidth = fullBar.width;
+            fullBar.width = barWidth - 0.2  ;
+            
 
         } else {
             player.animations.stop("acceleration");
@@ -301,23 +351,25 @@ var statusMain = {
         if (spaceKey.space.isDown && (shootFlag === false)) {
             shootFlag = true;
             ClientModule.playerShoots(player.x, player.y, player.angle);
-        } else if (!spaceKey.space.isDown && (shootFlag === true)){
+        } else if (!spaceKey.space.isDown && (shootFlag === true)) {
             shootFlag = false;
         }
-        
+
         GameModule.testGameRestart();
-        
+
         GameModule.destroyDeadAsteroids();
         game.physics.arcade.overlap(bulletsGroup, asteroidsGroup, this.destroyAsteroid, null, this);
         game.physics.arcade.overlap(player, asteroidsGroup, this.asteroidTouch, null, this);
-        
+
         //Multiplayer position update
-        if (connected === true) { ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);}
+        if (connected === true) {
+            ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);
+        }
     },
-    addNewAsteroid: function() {
+    addNewAsteroid: function () {
         GameModule.addNewAsteroid();
     },
-    destroyAsteroid: function(bullet, asteroid) {
+    destroyAsteroid: function (bullet, asteroid) {
         asteroid.kill();
         bullet.kill();
         ClientModule.informAsteroidDestroyed(bullet.shooter);

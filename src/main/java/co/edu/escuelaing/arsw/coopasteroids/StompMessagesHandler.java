@@ -1,6 +1,5 @@
 package co.edu.escuelaing.arsw.coopasteroids;
 
-import co.edu.escuelaing.arsw.coopasteroids.model.FullCell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -25,6 +24,7 @@ public class StompMessagesHandler {
         System.out.println("New Player Received = " + player.getPlayerId() + " " + player.getPlayerX() + " " + player.getPlayerY());
         game.setPlayerLifes(player.getPlayerId(), 3);
         game.setPlayerPoints(player.getPlayerId(), 0);
+        game.setPlayerFuels(player.getPlayerId(), 150);
         msgt.convertAndSend("/client/newPlayer", player);
     }
     

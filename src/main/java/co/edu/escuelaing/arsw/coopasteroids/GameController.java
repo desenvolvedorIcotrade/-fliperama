@@ -19,6 +19,7 @@ public class GameController {
     private final StompMessagesHandler s;
     private ConcurrentHashMap<String, Integer> playerPoints;
     private ConcurrentHashMap<String, Integer> playerLifes;
+    private ConcurrentHashMap<String, Integer> playerFuels;
     private int asteroidId;
     
     public GameController(StompMessagesHandler s) {
@@ -26,6 +27,7 @@ public class GameController {
         System.out.println("New Game Instance created");
         playerPoints = new ConcurrentHashMap<>();
         playerLifes = new ConcurrentHashMap<>();
+        playerFuels = new ConcurrentHashMap<>();
         this.s = s;
         spawnAsteroids();
         spawnFullCells();
@@ -85,6 +87,14 @@ public class GameController {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable r = new LifeCellRunnable(s,this);
         ex.scheduleAtFixedRate(r, 60000, 60000, TimeUnit.MILLISECONDS);
+    }
+
+    public ConcurrentHashMap<String, Integer> getPlayerFuels() {
+        return playerFuels;
+    }
+
+    public void setPlayerFuels(String playerId, int i) {
+        playerFuels.putIfAbsent(playerId, i);
     }
     
 }
