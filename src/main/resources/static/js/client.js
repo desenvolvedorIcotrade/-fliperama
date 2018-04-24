@@ -3,7 +3,7 @@
 var ClientModule = (function () {
     
     var stompClient = null;
-    var playerId = 100; //esto deberia ser sacado una vez por partida del api rest
+    var playerId = null; 
     var playerLives = 3;
     var fullPlayer = 150;
     
@@ -115,6 +115,7 @@ var ClientModule = (function () {
         suscribeToLives();
         
         subscribeToBarFuel();
+        stompClient.send("/client/newBarFuel", {}, JSON.stringify({playerId:playerId}));
     };
     
     //Suscribe to BarFuel
@@ -125,17 +126,12 @@ var ClientModule = (function () {
             GameModule.addNewBarFuel(JSON.parse(eventbody.body));
         });
         
-        //Topico para actualizar el combustible de los jugadore
-        stompClient.subscribe("/client/updateBarFuels", function (eventbody) { 
-            var data = JSON.parse(eventbody.body);
-            GameModule.eliminateFullCell(data.indexCell);
-        });
                 
     };
     
     var updateBarFuels = function (){
-        fullPlayer -= 0.5;
-        stompClient.send("/client/updateBarFuels", {}, JSON.stringify({indexCell: index}));
+        fullPlayer -= 0.05;
+        //stompClient.send("/client/updateBarFuels", {}, JSON.stringify({indexCell: index}));
     };
     
     //Suscribe to newFullCells

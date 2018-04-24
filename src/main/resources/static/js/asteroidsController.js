@@ -16,7 +16,7 @@ var bg;
 var lives;
 var fullBarsGroup;
 //var fullText;
-var flag=0;
+var flag = 0;
 
 var GameModule = (function () {
 
@@ -177,27 +177,34 @@ var GameModule = (function () {
             ClientModule.restartGame(true);
         }
     };
-    
+
     var addNewBarFuel = function (playerData) {
-        
-        var fullText = game.add.text(10, 10+flag, "", {
-            font: "22px Arial",
-            fill: "#ffffff",
-            align: "center"
-        });
-        
-        fullText.setText(" Combustible - " + playerData.playerId);
-        
+
         var fullBar = fullBarsGroup.getFirstDead();
-        
-        fullBar = game.add.sprite(5, 32+flag, fullBar);
-        fullBar.anchor.y = 0.5;
-        flag+10;
-        
+
+        if (fullBar) {
+            game.add.text(10, 10 + flag, "Combustible - " + playerData.playerId, {
+                font: "15px Arial",
+                fill: "#ffffff",
+                align: "center"
+            });
+
+            fullBar.width = 150;
+            fullBar.height = 10;
+            fullBar.ctx.beginPath();
+            fullBar.ctx.rect(0, 0, 180, 30);
+            fullBar.ctx.fillStyle = '#00FFFF';
+            fullBar.ctx.fill();
+
+            var healthBar = game.add.sprite(5, 32 + flag, fullBar);
+            healthBar.anchor.y = 0.5;
+            flag += 10;
+        }
+
     };
-    
-    var updateBarFuel = function (){
-        
+
+    var updateBarFuel = function () {
+
     };
 
     return {
@@ -217,7 +224,7 @@ var GameModule = (function () {
         takeCellLife: takeCellLife,
         eliminateCellLife: eliminateCellLife,
         addNewBarFuel: addNewBarFuel,
-        updateBarFuel:updateBarFuel
+        updateBarFuel: updateBarFuel
 
     };
 
@@ -272,17 +279,19 @@ var statusMain = {
         asteroidsGroup.enableBody = true;
         bulletsGroup = game.add.group();
         bulletsGroup.enableBody = true;
-        
+
         //create bar fuel
+
         var fullBar = game.add.bitmapData(150, 10);
         fullBar.ctx.beginPath();
         fullBar.ctx.rect(0, 0, 180, 30);
         fullBar.ctx.fillStyle = '#00FFFF';
         fullBar.ctx.fill();
-        
+
+
         fullBarsGroup = game.add.group();
-        fullBarsGroup.enableBody = true;
-        fullBarsGroup.createMultiple(4, fullBar);
+        fullBarsGroup.classType = Phaser.BitmapData;
+        fullBarsGroup.createMultiple(4);
 
         pointsText = game.add.text(420, 15, "", {
             font: "22px Arial",
@@ -290,15 +299,14 @@ var statusMain = {
             align: "center"
         });
         pointsText.anchor.setTo(0.5, 0.5);
-        
+
         lifesText = game.add.text(420, 585, "", {
             font: "22px Arial",
             fill: "#ffffff",
             align: "center"
         });
         lifesText.anchor.setTo(0.5, 0.5);
-
-
+        
         var callback = {
             onSuccess: function () {
 
@@ -331,12 +339,12 @@ var statusMain = {
             player.body.velocity.x += Math.cos((player.angle - 90) * Math.PI / 180);
 
             player.body.velocity.y += Math.sin((player.angle - 90) * Math.PI / 180);
-            
+
             //empty fuel
-            
-            barWidth = fullBar.width;
-            fullBar.width = barWidth - 0.2  ;
-            
+            ClientModule.updateBarFuels();
+            //barWidth = fullBar.width;
+            //fullBar.width = barWidth - 0.2;
+
 
         } else {
             player.animations.stop("acceleration");
@@ -362,9 +370,9 @@ var statusMain = {
         game.physics.arcade.overlap(player, asteroidsGroup, this.asteroidTouch, null, this);
 
         //Multiplayer position update
-        if (connected === true) {
-            ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);
-        }
+        /**if (connected === true) {
+         ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);
+         }*/
     },
     addNewAsteroid: function () {
         GameModule.addNewAsteroid();
