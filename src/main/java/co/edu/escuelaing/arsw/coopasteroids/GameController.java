@@ -1,20 +1,11 @@
 package co.edu.escuelaing.arsw.coopasteroids;
 
-
-import co.edu.escuelaing.arsw.coopasteroids.RoomController;
 import co.edu.escuelaing.arsw.coopasteroids.model.Player;
 import java.util.concurrent.ConcurrentHashMap;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  *
- * @author daniel
+ * @author Daniel Ospina
  */
 public class GameController {
 

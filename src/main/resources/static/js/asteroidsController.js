@@ -189,7 +189,7 @@ var GameModule = (function () {
 
     };
 
-})();
+}());
 
 
 

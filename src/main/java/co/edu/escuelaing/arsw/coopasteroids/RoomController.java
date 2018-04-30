@@ -37,7 +37,7 @@ public class RoomController {
     private void spawnAsteroids() {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable r = new AsteroidRunnable(s, roomId);
-        ex.scheduleAtFixedRate(r, 0, 2500, TimeUnit.MILLISECONDS);
+        ex.scheduleAtFixedRate(r, 100, 2500, TimeUnit.MILLISECONDS);
     }
 
     public void asteroidDestroyedByPlayer(String playerId) {

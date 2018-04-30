@@ -1,6 +1,5 @@
 package co.edu.escuelaing.arsw.coopasteroids;
 
-import co.edu.escuelaing.arsw.coopasteroids.model.FullCell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -81,11 +80,11 @@ public class StompMessagesHandler {
         msgt.convertAndSend("/client/room" + roomId + "/newPlayer", player);
     }
 
-    void handleSendPointsUpdate(ConcurrentHashMap playerPoints, int roomId) {
+    public void handleSendPointsUpdate(ConcurrentHashMap playerPoints, int roomId) {
         msgt.convertAndSend("/client/room" + roomId + "/updatePoints", playerPoints);
     }
 
-    void handleSendLifesUpdate(ConcurrentHashMap playerLifes, int roomId) {
+    public void handleSendLifesUpdate(ConcurrentHashMap playerLifes, int roomId) {
         msgt.convertAndSend("/client/room" + roomId + "/updateLifes", playerLifes);
     }
 

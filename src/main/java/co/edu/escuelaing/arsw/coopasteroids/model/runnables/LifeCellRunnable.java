@@ -1,6 +1,5 @@
 package co.edu.escuelaing.arsw.coopasteroids.model.runnables;
 
-import co.edu.escuelaing.arsw.coopasteroids.RoomController;
 import co.edu.escuelaing.arsw.coopasteroids.StompMessagesHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
