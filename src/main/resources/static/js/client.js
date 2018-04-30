@@ -6,6 +6,7 @@ var ClientModule = (function () {
     var playerId = 100; //esto deberia ser sacado una vez por partida del api rest
     var playerLives = 3;
     var fullPlayer = null;
+    var roomId = 1000; //ESTE CAMBIA CUANDO SE IMPLEMENTE LA FORMA DE ELEGIR SALA...
     
     var connect = function (callback) {
         var socket = new SockJS("/stompendpoint");
@@ -18,7 +19,7 @@ var ClientModule = (function () {
     };
     
     var subscribeToNewPlayers = function () {
-        stompClient.subscribe("/client/newPlayer", function (eventbody) {
+        stompClient.subscribe("/client/room" + roomId + "/newPlayer", function (eventbody) {
             GameModule.addNewPlayer(JSON.parse(eventbody.body));
         });
     };
@@ -38,41 +39,41 @@ var ClientModule = (function () {
     };
     
     var subscribeToPlayerUpdates = function () {
-        stompClient.subscribe("/client/playerUpdate", function (eventbody) {
+        stompClient.subscribe("/client/room" + roomId + "/playerUpdate", function (eventbody) {
             updatePlayer(JSON.parse(eventbody.body));
         });
     };
     
     var subscribeToNewAsteroids = function () {
-        stompClient.subscribe("/client/newAsteroid", function (eventbody) {
+        stompClient.subscribe("/client/room" + roomId + "/newAsteroid", function (eventbody) {
             var data = JSON.parse(eventbody.body);
             GameModule.addNewAsteroid(data[0], data[1], data[2], data[3]);
         });
     };
     
     var subscribeToPlayerShoots = function () {
-        stompClient.subscribe("/client/playerShoots", function (eventbody) {
+        stompClient.subscribe("/client/room" + roomId + "/playerShoots", function (eventbody) {
             var data = JSON.parse(eventbody.body);
             GameModule.playerShoots(data.playerX, data.playerY, data.playerAngle, data.playerId);
         });
     };
     
     var subscribeToUpdatePoints = function () {
-        stompClient.subscribe("/client/updatePoints", function (eventbody) {
+        stompClient.subscribe("/client/room" + roomId + "/updatePoints", function (eventbody) {
             var pointsList = JSON.parse(eventbody.body);
             GameModule.updatePoints(pointsList);
         });
     };
     
     var subscribeToPlayerLifes = function () {
-        stompClient.subscribe("/client/updateLifes", function (eventbody) {
+        stompClient.subscribe("/client/room" + roomId + "/updateLifes", function (eventbody) {
             var lifesList = JSON.parse(eventbody.body);
             GameModule.updateLifes(lifesList);
         });
     };
     
     var subscribeToEliminateAsteroids = function () {
-        stompClient.subscribe("/client/eliminateAsteroid", function (eventbody) {
+        stompClient.subscribe("/client/room" + roomId + "/eliminateAsteroid", function (eventbody) {
             var asteroidId = JSON.parse(eventbody.body);
             GameModule.eliminateAsteroid(asteroidId);
         });
@@ -81,17 +82,17 @@ var ClientModule = (function () {
     var restartGame = function (local) {
         alert("Game Restarted By Admin...");
         location.reload();
-        if (local === true) { stompClient.send("/app/restartGame", {}, null); }
+        if (local === true) { stompClient.send("/app/room" + roomId + "/restartGame", {}, null); }
     };
     
     var subscribeToGameRestart = function () {
-        stompClient.subscribe("/client/gameRestart", function () {
+        stompClient.subscribe("/client/room" + roomId + "/gameRestart", function () {
             restartGame(false);
         });
     };
     
     var sendUpdatePlayer = function (playerX, playerY, playerAngle) {
-        stompClient.send("/app/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
+        stompClient.send("/app/room" + roomId + "/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
     
     var getPlayerId = function () {
@@ -100,7 +101,7 @@ var ClientModule = (function () {
     
     var registerPlayer = function (playerX, playerY) {
         playerId = prompt("Please enter your name:", "Player1");
-        stompClient.send("/app/registerPlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY}));
+        stompClient.send("/app/room" + roomId + "/registerPlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY}));
         subscribeToNewPlayers();
         subscribeToPlayerUpdates();
         
@@ -119,13 +120,13 @@ var ClientModule = (function () {
     var subscribeToFullCells = function () {
         
         //Topico para nuevas celulas de combustion
-        stompClient.subscribe("/client/newFullCell", function (eventbody) {           
+        stompClient.subscribe("/client/room" + roomId + "/newFullCell", function (eventbody) {           
             var data = JSON.parse(eventbody.body);
             GameModule.addNewFullCell(data[0], data[1], data[2]);
         });
         
         //Topico para cuando toman una celula
-        stompClient.subscribe("/client/takefullCell", function (eventbody) { 
+        stompClient.subscribe("/client/room" + roomId + "/takefullCell", function (eventbody) { 
             var data = JSON.parse(eventbody.body);
             GameModule.eliminateFullCell(data.indexCell);
         });
@@ -135,7 +136,7 @@ var ClientModule = (function () {
     
     var takeFullCell = function (index) {
         fullPlayer += 5;
-        stompClient.send("/client/takefullCell", {}, JSON.stringify({indexCell: index}));
+        stompClient.send("/client/room" + roomId + "/takefullCell", {}, JSON.stringify({indexCell: index}));
 
     };
     
@@ -143,13 +144,13 @@ var ClientModule = (function () {
     var suscribeToLives = function () {
         
         //Topico para nuevas vidas
-        stompClient.subscribe("/client/newCellLife", function (eventbody) {           
+        stompClient.subscribe("/client/room" + roomId + "/newCellLife", function (eventbody) {           
             var data = JSON.parse(eventbody.body);
             GameModule.addNewCellLife(data[0], data[1]);
         });
         
         //Topico para cuando toman una vida
-        stompClient.subscribe("/client/takeCellLife", function (eventbody) { 
+        stompClient.subscribe("/client/room" + roomId + "/takeCellLife", function (eventbody) { 
             var data = JSON.parse(eventbody.body);
             GameModule.eliminateCellLife(data.indexCell);
         });  
@@ -157,23 +158,23 @@ var ClientModule = (function () {
     
     var takeCellLife = function (index) {
         playerLives += 1;
-        stompClient.send("/client/takeCellLife", {}, JSON.stringify({indexCell: index}));
+        stompClient.send("/client/room" + roomId + "/takeCellLife", {}, JSON.stringify({indexCell: index}));
      
     };
     
     var playerShoots = function (playerX, playerY, playerAngle) {
-        stompClient.send("/app/playerShoots", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
+        stompClient.send("/app/room" + roomId + "/playerShoots", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
     
     var informAsteroidDestroyed = function (shooter) {
         if (shooter === playerId) {
-            stompClient.send("/app/informAsteroidDestroyed", {}, shooter);
+            stompClient.send("/app/room" + roomId + "/informAsteroidDestroyed", {}, shooter);
         }
     };
     
     var informAsteroidTouch = function (asteroidId) {
-        stompClient.send("/app/informAsteroidTouch", {}, playerId);
-        stompClient.send("/app/eliminateAsteroid", {}, asteroidId);
+        stompClient.send("/app/room" + roomId + "/informAsteroidTouch", {}, playerId);
+        stompClient.send("/app/room" + roomId + "/eliminateAsteroid", {}, asteroidId);
     };
     
     return {

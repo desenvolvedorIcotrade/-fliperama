@@ -1,90 +1,61 @@
 package co.edu.escuelaing.arsw.coopasteroids;
 
-import co.edu.escuelaing.arsw.coopasteroids.model.runnables.AsteroidRunnable;
-import co.edu.escuelaing.arsw.coopasteroids.model.runnables.FullCellRunnable;
-import co.edu.escuelaing.arsw.coopasteroids.model.runnables.LifeCellRunnable;
+
+import co.edu.escuelaing.arsw.coopasteroids.RoomController;
+import co.edu.escuelaing.arsw.coopasteroids.model.Player;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
 /**
  *
- * @author Daniel Ospina - Juan Ortiz
+ * @author daniel
  */
 public class GameController {
-    
-    private final Integer POINTS_FOR_ASTEROID = 100;
-    
-    private final StompMessagesHandler s;
-    private ConcurrentHashMap<String, Integer> playerPoints;
-    private ConcurrentHashMap<String, Integer> playerLifes;
-    private int asteroidId;
-    
-    public GameController(StompMessagesHandler s) {
-        this.asteroidId = 0;
-        System.out.println("New Game Instance created");
-        playerPoints = new ConcurrentHashMap<>();
-        playerLifes = new ConcurrentHashMap<>();
-        this.s = s;
-        spawnAsteroids();
-        spawnFullCells();
-        spawnLifeCells();
-    }
 
-    private void spawnAsteroids() {
-        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        Runnable r = new AsteroidRunnable(s);
-        ex.scheduleAtFixedRate(r, 0, 2500, TimeUnit.MILLISECONDS);
-    }
+    private final StompMessagesHandler messageHandler;
+    private ConcurrentHashMap<Integer, RoomController> currentRooms;
 
-    public void asteroidDestroyedByPlayer(String playerId) {
-        Integer current = playerPoints.getOrDefault(playerId, 0);
-        playerPoints.put(playerId, current + POINTS_FOR_ASTEROID);
+    GameController(StompMessagesHandler messageHandler) {
+        this.messageHandler = messageHandler;
+        this.currentRooms = new ConcurrentHashMap<>();
     }
     
-    public ConcurrentHashMap getPlayerPoints() {
-        return playerPoints;
+    public void handleRegisterPlayer(Player player, int roomId) {
+        if (!currentRooms.containsKey(roomId)) currentRooms.put(roomId, new RoomController(messageHandler, roomId));
+        RoomController room = currentRooms.get(roomId);
+        System.out.println("[ROOM " + roomId + "] New Player Received = " + player.getPlayerId() + " " + player.getPlayerX() + " " + player.getPlayerY());
+        room.setPlayerLifes(player.getPlayerId(), 3);
+        room.setPlayerPoints(player.getPlayerId(), 0);
+        messageHandler.handleSendNewPlayer(player, roomId);
     }
 
-    public void reduceLifeCount(String playerId) {
-        Integer current = playerLifes.getOrDefault(playerId, 3);
-        playerLifes.put(playerId, current - 1);
-    }
-    
-    public ConcurrentHashMap getPlayerLifes() {
-        return playerLifes;
+    public void handleAsteroidDestroyedByPlayer(String playerId, int roomId) {
+        RoomController room = currentRooms.get(roomId);
+        room.asteroidDestroyedByPlayer(playerId);
+        System.out.println("[ROOM " + roomId + "] Player Points: " + room.getPlayerPoints());
+        messageHandler.handleSendPointsUpdate(room.getPlayerPoints(), roomId);
     }
 
-    public void setPlayerLifes(String playerId, int i) {
-        playerLifes.putIfAbsent(playerId, i);
+    public void handleReduceLifeCount(String playerId, int roomId) {
+        RoomController room = currentRooms.get(roomId);
+        room.reduceLifeCount(playerId);
+        messageHandler.handleSendLifesUpdate(room.getPlayerLifes(), roomId);
     }
 
-    public void setPlayerPoints(String playerId, int i) {
-        playerPoints.putIfAbsent(playerId, i);
+    public void handleGameRestart(int roomId) {
+        RoomController room = currentRooms.get(roomId);
+        room.restart();
     }
 
-    public int getAndIncrementAsteroidId() {
-        return asteroidId++;
-    }
-
-    public void restart() {
-        this.asteroidId = 0;
-        playerPoints = new ConcurrentHashMap<>();
-        playerLifes = new ConcurrentHashMap<>();
-                
-    }
-    
-    private void spawnFullCells() {
-        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        Runnable r = new FullCellRunnable(s,this);
-        ex.scheduleAtFixedRate(r, 45000, 45000, TimeUnit.MILLISECONDS);
-    }
-    
-    private void spawnLifeCells() {
-        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        Runnable r = new LifeCellRunnable(s,this);
-        ex.scheduleAtFixedRate(r, 60000, 60000, TimeUnit.MILLISECONDS);
+    public int getAndIncrementAsteroidIdByRoom(int roomId) {
+        RoomController room = currentRooms.get(roomId);
+        return room.getAndIncrementAsteroidId();
     }
     
 }
