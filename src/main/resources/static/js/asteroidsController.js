@@ -1,4 +1,4 @@
-/* global Phaser, ClientModule */
+/* global Phaser, ClientModule, MenuInitial, game */
 
 var player;
 var cursorKeys;
@@ -7,7 +7,7 @@ var shootFlag = false;
 var restartFlag = false;
 var pointsText;
 var lifesText;
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
+//var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
 var connected = false;
 var asteroidsGroup;
 var bulletsGroup;
@@ -282,7 +282,7 @@ var statusMain = {
 
         //create bar fuel
 
-        var fullBar = game.add.bitmapData(150, 10);
+        /*var fullBar = game.add.bitmapData(150, 10);
         fullBar.ctx.beginPath();
         fullBar.ctx.rect(0, 0, 180, 30);
         fullBar.ctx.fillStyle = '#00FFFF';
@@ -291,7 +291,7 @@ var statusMain = {
 
         fullBarsGroup = game.add.group();
         fullBarsGroup.classType = Phaser.BitmapData;
-        fullBarsGroup.createMultiple(4);
+        fullBarsGroup.createMultiple(4);*/
 
         pointsText = game.add.text(420, 15, "", {
             font: "22px Arial",
@@ -389,5 +389,7 @@ var statusMain = {
     }
 };
 
+/*game.state.add("Menu", MenuInitial);
 game.state.add("Main", statusMain);
-game.state.start("Main");
+
+game.state.start("Menu");*/
