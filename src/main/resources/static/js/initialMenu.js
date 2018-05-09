@@ -3,7 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-/* global Phaser, game, PhaserInput */
+/* global Phaser, game, PhaserInput, playerId */
+var userName = null;
 
 var bgMI;
 
@@ -63,6 +64,11 @@ var MenuInitial = {
         bgMI.tilePosition.x -= 0.2;
     },
     startGame: function () {
-        this.state.start("RoomMenu");
+        if(userName.value !== ""){
+            playerId = userName.value;
+            this.state.start("Game");
+        }else{
+            alert("Por favor entrar un nombre de usuario");
+        }
     }
 };

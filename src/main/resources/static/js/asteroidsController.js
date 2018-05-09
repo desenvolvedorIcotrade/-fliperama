@@ -283,15 +283,15 @@ var statusMain = {
         //create bar fuel
 
         /*var fullBar = game.add.bitmapData(150, 10);
-        fullBar.ctx.beginPath();
-        fullBar.ctx.rect(0, 0, 180, 30);
-        fullBar.ctx.fillStyle = '#00FFFF';
-        fullBar.ctx.fill();
-
-
-        fullBarsGroup = game.add.group();
-        fullBarsGroup.classType = Phaser.BitmapData;
-        fullBarsGroup.createMultiple(4);*/
+         fullBar.ctx.beginPath();
+         fullBar.ctx.rect(0, 0, 180, 30);
+         fullBar.ctx.fillStyle = '#00FFFF';
+         fullBar.ctx.fill();
+         
+         
+         fullBarsGroup = game.add.group();
+         fullBarsGroup.classType = Phaser.BitmapData;
+         fullBarsGroup.createMultiple(4);*/
 
         pointsText = game.add.text(420, 15, "", {
             font: "22px Arial",
@@ -306,7 +306,7 @@ var statusMain = {
             align: "center"
         });
         lifesText.anchor.setTo(0.5, 0.5);
-        
+
         var callback = {
             onSuccess: function () {
 
@@ -369,10 +369,10 @@ var statusMain = {
         game.physics.arcade.overlap(bulletsGroup, asteroidsGroup, this.destroyAsteroid, null, this);
         game.physics.arcade.overlap(player, asteroidsGroup, this.asteroidTouch, null, this);
 
-        //Multiplayer position update
-        /**if (connected === true) {
-         ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);
-         }*/
+        //Multiplayer position update - revisar
+        if (connected === true) {
+            ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);
+        }
     },
     addNewAsteroid: function () {
         GameModule.addNewAsteroid();
@@ -390,6 +390,6 @@ var statusMain = {
 };
 
 /*game.state.add("Menu", MenuInitial);
-game.state.add("Main", statusMain);
-
-game.state.start("Menu");*/
+ game.state.add("Main", statusMain);
+ 
+ game.state.start("Menu");*/
