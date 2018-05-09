@@ -18,7 +18,7 @@ var MenuInitial = {
 
         game.add.plugin(PhaserInput.Plugin);
 
-        var userName = game.add.inputField(game.width / 2 - 84, game.height / 2 - 4, {
+        userName = game.add.inputField(game.width / 2 - 84, game.height / 2 - 4, {
             font: "18px Arial",
             fill: "#212121",
             fontWeight: "bold",
@@ -66,7 +66,7 @@ var MenuInitial = {
     startGame: function () {
         if(userName.value !== ""){
             playerId = userName.value;
-            this.state.start("Game");
+            this.state.start("RoomMenu");
         }else{
             alert("Por favor entrar un nombre de usuario");
         }
