@@ -1,9 +1,10 @@
 /* global Stomp, GameModule, SockJS */
+var playerId = null;
 
 var ClientModule = (function () {
     
     var stompClient = null;
-    var playerId = null; 
+     
     var playerLives = 3;
     var fullPlayer = 150;
     
@@ -99,7 +100,7 @@ var ClientModule = (function () {
     };
     
     var registerPlayer = function (playerX, playerY) {
-        playerId = prompt("Please enter your name:", "Player1");
+        
         stompClient.send("/app/registerPlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY}));
         subscribeToNewPlayers();
         subscribeToPlayerUpdates();
