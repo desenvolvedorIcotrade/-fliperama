@@ -1,4 +1,4 @@
-/* global Stomp, GameModule, SockJS, pointsText, lifesText, fullPercent */
+/* global Stomp, GameModule, SockJS, pointsText, lifesText, fullPercent, game */
 var playerId = null;
 
 var playerLives = 3;
@@ -201,11 +201,12 @@ var ClientModule = (function () {
     //Se modifico
     var informAsteroidTouch = function (asteroidId) {
         playerLives -= 1;
+        lifesText.setText("Lifes "+playerLives);
         stompClient.send("/client/updateLifes", {}, JSON.stringify({playerId: playerId, lives: playerLives}));
         stompClient.send("/client/eliminateAsteroid", {}, JSON.stringify({asteroidId: asteroidId}));
         if(playerLives === 0){
-            //Pierde el man - pasar al estado de gameOver
-            alert("murio mi perro");
+            //se pasa al ultimo estado 
+            game.state.start("GameOver");
         } 
     };
     

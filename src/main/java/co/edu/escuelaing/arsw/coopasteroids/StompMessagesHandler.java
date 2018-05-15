@@ -22,11 +22,7 @@ public class StompMessagesHandler {
     public void handleRegisterPlayer(Player player) {
         if (game == null) game = new GameController(this);
         System.out.println("New Player Received = " + player.getPlayerId() + " " + player.getPlayerX() + " " + player.getPlayerY());
-
-        // esto no se usa ya que las vidas y los puntos los tiene cada cliente y no el servidor
-        game.setPlayerLifes(player.getPlayerId(), 3);
-        game.setPlayerPoints(player.getPlayerId(), 0);
-        
+        //Aqui se debe  ver si la sala que manda existe o no y hacer lo que le corresponde
         msgt.convertAndSend("/client/newPlayer", player);
     }
     
@@ -51,33 +47,6 @@ public class StompMessagesHandler {
         data[3] = game.getAndIncrementAsteroidId();
         System.out.println("New Asteroid sent: " + data[0] + " " + data[1] + " " + data[2] + " " + data[3]);
         msgt.convertAndSend("/client/newAsteroid", data);
-    }
-    
-    //Ya no se usa
-    @MessageMapping("/playerShoots")
-    public void handlePlayerShoots(Player player) {
-        msgt.convertAndSend("/client/playerShoots", player);
-    }
-    //Ya no se usa
-    @MessageMapping("/informAsteroidDestroyed")
-    public void handleInformAsteroidDestroyed(String playerId) {
-        System.out.println("[" + playerId + "] destroyed an asteroid.");
-        game.asteroidDestroyedByPlayer(playerId);
-        System.out.println("Player Points: " + game.getPlayerPoints());
-        msgt.convertAndSend("/client/updatePoints", game.getPlayerPoints());
-    }
-    
-    //Ya no se usa
-    @MessageMapping("/informAsteroidTouch")
-    public void handleInformAsteroidTouch(String playerId) {
-        game.reduceLifeCount(playerId);
-        msgt.convertAndSend("/client/updateLifes", game.getPlayerLifes());
-    }
-    
-    //Ya no se usa
-    @MessageMapping("/eliminateAsteroid")
-    public void handleEliminateAsteroid(String asteroidId) {
-        msgt.convertAndSend("/client/eliminateAsteroid", asteroidId);
     }
     
     @MessageMapping("/restartGame")
