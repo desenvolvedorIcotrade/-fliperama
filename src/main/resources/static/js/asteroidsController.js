@@ -1,4 +1,4 @@
-/* global Phaser, ClientModule, MenuInitial, game */
+/* global Phaser, ClientModule, MenuInitial, game, points */
 
 var player;
 var cursorKeys;
@@ -7,16 +7,19 @@ var shootFlag = false;
 var restartFlag = false;
 var pointsText;
 var lifesText;
-//var game = new Phaser.Game(800, 600, Phaser.CANVAS, "canvasGame");
+
 var connected = false;
 var asteroidsGroup;
 var bulletsGroup;
 var fullCells;
 var bg;
 var lives;
-var fullBarsGroup;
-//var fullText;
-var flag = 0;
+
+var fullBar;
+var fullPercent = 100;
+
+
+var barFlag = 40;
 
 var GameModule = (function () {
 
@@ -25,11 +28,29 @@ var GameModule = (function () {
     var getPlayerList = function () {
         return playerList;
     };
-
+    
+    //se modifico
     var addNewPlayer = function (playerData) {
         if (ClientModule.getPlayerId() !== playerData.playerId) {
             var newPlayer = game.add.sprite(playerData.playerX, playerData.playerY, "player");
-            playerList.push({id: playerData.playerId, sprite: newPlayer});
+
+            var fBar = new HealthBar(game, {x: 140 , y: barFlag + 25, height: 10});
+            fBar.setBarColor("#02daff");
+            
+            var pointsT= game.add.text(10 , barFlag, playerData.playerId + " 0", {
+                font: "18px Arial",
+                fill: "#ffffff",
+                align: "center"
+            });
+            var lifesT = game.add.text(110, barFlag, "Lifes 3", {
+                font: "18px Arial",
+                fill: "#ffffff",
+                align: "center"
+            });
+            
+            barFlag += 40; 
+
+            playerList.push({id: playerData.playerId, sprite: newPlayer, fBar: fBar, pointsT: pointsT, lifesT: lifesT});
             newPlayer.anchor.setTo(0.5);
         }
     };
@@ -63,8 +84,12 @@ var GameModule = (function () {
     };
 
     var takeFullCell = function (player, cell) {
-        //Aumentar Combustible y actualiza
+        //Aumentar Combustible 
+        fullPercent += 20;
+        fullBar.setPercent(fullPercent);
+        //Actualiza otros clientes
         ClientModule.takeFullCell(cell.z);
+        ClientModule.updateBarFuels();
     };
 
     var eliminateFullCell = function (index) {
@@ -143,25 +168,22 @@ var GameModule = (function () {
             asteroid.destroy();
         });
     };
-
-    var updatePoints = function (pointsList) {
-        var text = "";
-        var keysList = Object.keys(pointsList);
-        var valuesList = Object.values(pointsList);
-        for (var _x = 0; _x < Object.keys(pointsList).length; _x++) {
-            text = text + keysList[_x] + " " + valuesList[_x] + "      ";
+    
+    //MOdifique para que actualize el texto correspondiente 
+    var updatePoints = function (shooter, points) {
+        for (var _x = 0; _x < playerList.length; _x++) { 
+            if(playerList[_x].id === shooter){
+                playerList[_x].pointsT.setText(shooter + " " + points);
+            }
         }
-        pointsText.setText(text);
     };
 
-    var updateLifes = function (lifesList) {
-        var text = "";
-        var keysList = Object.keys(lifesList);
-        var valuesList = Object.values(lifesList);
-        for (var _x = 0; _x < Object.keys(lifesList).length; _x++) {
-            text = text + "     Lifes " + valuesList[_x] + "      ";
+    var updateLifes = function (plyr, lifes) {
+        for (var _x = 0; _x < playerList.length; _x++) { 
+            if(playerList[_x].id === plyr){
+                playerList[_x].lifesT.setText("Lifes "+lifes);
+            }
         }
-        lifesText.setText(text);
     };
 
     var eliminateAsteroid = function (astId) {
@@ -177,34 +199,13 @@ var GameModule = (function () {
             ClientModule.restartGame(true);
         }
     };
-
-    var addNewBarFuel = function (playerData) {
-
-        var fullBar = fullBarsGroup.getFirstDead();
-
-        if (fullBar) {
-            game.add.text(10, 10 + flag, "Combustible - " + playerData.playerId, {
-                font: "15px Arial",
-                fill: "#ffffff",
-                align: "center"
-            });
-
-            fullBar.width = 150;
-            fullBar.height = 10;
-            fullBar.ctx.beginPath();
-            fullBar.ctx.rect(0, 0, 180, 30);
-            fullBar.ctx.fillStyle = '#00FFFF';
-            fullBar.ctx.fill();
-
-            var healthBar = game.add.sprite(5, 32 + flag, fullBar);
-            healthBar.anchor.y = 0.5;
-            flag += 10;
+    
+    var updateBarFuels = function (playerBarID, percent) {
+        for (var _x = 0; _x < playerList.length; _x++) { 
+            if(playerList[_x].id === playerBarID){
+                playerList[_x].fBar.setPercent(percent);
+            }
         }
-
-    };
-
-    var updateBarFuel = function () {
-
     };
 
     return {
@@ -223,8 +224,7 @@ var GameModule = (function () {
         addNewCellLife: addNewCellLife,
         takeCellLife: takeCellLife,
         eliminateCellLife: eliminateCellLife,
-        addNewBarFuel: addNewBarFuel,
-        updateBarFuel: updateBarFuel
+        updateBarFuels: updateBarFuels
 
     };
 
@@ -282,30 +282,23 @@ var statusMain = {
 
         //create bar fuel
 
-        /*var fullBar = game.add.bitmapData(150, 10);
-         fullBar.ctx.beginPath();
-         fullBar.ctx.rect(0, 0, 180, 30);
-         fullBar.ctx.fillStyle = '#00FFFF';
-         fullBar.ctx.fill();
-         
-         
-         fullBarsGroup = game.add.group();
-         fullBarsGroup.classType = Phaser.BitmapData;
-         fullBarsGroup.createMultiple(4);*/
+        fullBar = new HealthBar(game, {x: 140, y: 30, height: 10});
+        fullBar.setBarColor("#02daff");
 
-        pointsText = game.add.text(420, 15, "", {
-            font: "22px Arial",
+
+        pointsText = game.add.text(10, 5, "", {
+            font: "18px Arial",
             fill: "#ffffff",
             align: "center"
         });
-        pointsText.anchor.setTo(0.5, 0.5);
+        //pointsText.anchor.setTo(0.5, 0.5);
 
-        lifesText = game.add.text(420, 585, "", {
-            font: "22px Arial",
+        lifesText = game.add.text(110, 5, "", {
+            font: "18px Arial",
             fill: "#ffffff",
             align: "center"
         });
-        lifesText.anchor.setTo(0.5, 0.5);
+        //lifesText.anchor.setTo(0.5, 0.5);
 
         var callback = {
             onSuccess: function () {
@@ -333,18 +326,17 @@ var statusMain = {
         } else if (cursorKeys.left.isDown) {
             player.angle -= 4;
         }
-        if (cursorKeys.up.isDown && (ClientModule.getPlayerFuel() !== 0)) {
+        if (cursorKeys.up.isDown && (fullPercent > 0)) {
             player.animations.play("acceleration");
 
             player.body.velocity.x += Math.cos((player.angle - 90) * Math.PI / 180);
 
             player.body.velocity.y += Math.sin((player.angle - 90) * Math.PI / 180);
 
-            //empty fuel
+            //empty fuel          
+            fullPercent -= 0.1;
+            fullBar.setPercent(fullPercent);
             ClientModule.updateBarFuels();
-            //barWidth = fullBar.width;
-            //fullBar.width = barWidth - 0.2;
-
 
         } else {
             player.animations.stop("acceleration");
@@ -389,7 +381,3 @@ var statusMain = {
     }
 };
 
-/*game.state.add("Menu", MenuInitial);
- game.state.add("Main", statusMain);
- 
- game.state.start("Menu");*/

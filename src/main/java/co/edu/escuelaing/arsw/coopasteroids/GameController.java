@@ -1,5 +1,6 @@
 package co.edu.escuelaing.arsw.coopasteroids;
 
+import co.edu.escuelaing.arsw.coopasteroids.model.Player;
 import co.edu.escuelaing.arsw.coopasteroids.model.runnables.AsteroidRunnable;
 import co.edu.escuelaing.arsw.coopasteroids.model.runnables.FullCellRunnable;
 import co.edu.escuelaing.arsw.coopasteroids.model.runnables.LifeCellRunnable;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Daniel Ospina - Juan Ortiz
  */
-public class GameController {
+public class GameController { //esto es una sola partida
     
     private final Integer POINTS_FOR_ASTEROID = 100;
     
@@ -22,12 +23,16 @@ public class GameController {
     private ConcurrentHashMap<String, Integer> playerFuels;
     private int asteroidId;
     
+
+    
     public GameController(StompMessagesHandler s) {
         this.asteroidId = 0;
         System.out.println("New Game Instance created");
         playerPoints = new ConcurrentHashMap<>();
         playerLifes = new ConcurrentHashMap<>();
         playerFuels = new ConcurrentHashMap<>();
+        
+        
         this.s = s;
         spawnAsteroids();
         spawnFullCells();
@@ -91,10 +96,6 @@ public class GameController {
 
     public ConcurrentHashMap<String, Integer> getPlayerFuels() {
         return playerFuels;
-    }
-
-    public void setPlayerFuels(String playerId, int i) {
-        playerFuels.putIfAbsent(playerId, i);
     }
     
 }

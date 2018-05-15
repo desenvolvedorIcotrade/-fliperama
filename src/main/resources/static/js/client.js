@@ -1,12 +1,13 @@
-/* global Stomp, GameModule, SockJS */
+/* global Stomp, GameModule, SockJS, pointsText, lifesText, fullPercent */
 var playerId = null;
+
+var playerLives = 3;
+
+var points = 0;
 
 var ClientModule = (function () {
     
     var stompClient = null;
-     
-    var playerLives = 3;
-    var fullPlayer = 150;
     
     var connect = function (callback) {
         var socket = new SockJS("/stompendpoint");
@@ -60,22 +61,22 @@ var ClientModule = (function () {
     
     var subscribeToUpdatePoints = function () {
         stompClient.subscribe("/client/updatePoints", function (eventbody) {
-            var pointsList = JSON.parse(eventbody.body);
-            GameModule.updatePoints(pointsList);
+            var data = JSON.parse(eventbody.body);
+            GameModule.updatePoints(data.shooter, data.points);
         });
     };
     
     var subscribeToPlayerLifes = function () {
         stompClient.subscribe("/client/updateLifes", function (eventbody) {
-            var lifesList = JSON.parse(eventbody.body);
-            GameModule.updateLifes(lifesList);
+            var data = JSON.parse(eventbody.body);
+            GameModule.updateLifes(data.playerId, data.lives);
         });
     };
     
     var subscribeToEliminateAsteroids = function () {
         stompClient.subscribe("/client/eliminateAsteroid", function (eventbody) {
-            var asteroidId = JSON.parse(eventbody.body);
-            GameModule.eliminateAsteroid(asteroidId);
+            var data = JSON.parse(eventbody.body);
+            GameModule.eliminateAsteroid(data.asteroidId);
         });
     };
     
@@ -116,23 +117,23 @@ var ClientModule = (function () {
         suscribeToLives();
         
         subscribeToBarFuel();
-        stompClient.send("/client/newBarFuel", {}, JSON.stringify({playerId:playerId}));
+        
     };
     
     //Suscribe to BarFuel
     var subscribeToBarFuel = function () {
         
         //Topico para nuevas barras de combustible
-        stompClient.subscribe("/client/newBarFuel", function (eventbody) {           
-            GameModule.addNewBarFuel(JSON.parse(eventbody.body));
+        stompClient.subscribe("/client/updateBarFuels", function (eventbody) {   
+            var data = JSON.parse(eventbody.body);
+            GameModule.updateBarFuels(data.playerId, data.percentBar);
         });
         
                 
     };
     
     var updateBarFuels = function (){
-        fullPlayer -= 0.05;
-        //stompClient.send("/client/updateBarFuels", {}, JSON.stringify({indexCell: index}));
+        stompClient.send("/client/updateBarFuels", {}, JSON.stringify({playerId: playerId, percentBar: fullPercent}));
     };
     
     //Suscribe to newFullCells
@@ -154,7 +155,7 @@ var ClientModule = (function () {
     };
     
     var takeFullCell = function (index) {
-        fullPlayer += 10;
+        //Envia al topico que celda fue cogida
         stompClient.send("/client/takefullCell", {}, JSON.stringify({indexCell: index}));
 
     };
@@ -177,28 +178,37 @@ var ClientModule = (function () {
     
     var takeCellLife = function (index) {
         playerLives += 1;
+        lifesText.setText("Lifes "+playerLives);
         stompClient.send("/client/takeCellLife", {}, JSON.stringify({indexCell: index}));
+        stompClient.send("/client/updateLifes", {}, JSON.stringify({playerId: playerId, lives: playerLives}));
      
     };
     
+    // modifique para que enviara de una vez al topico y no al servidor
     var playerShoots = function (playerX, playerY, playerAngle) {
-        stompClient.send("/app/playerShoots", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
+        stompClient.send("/client/playerShoots", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
     
+    //Se modifico
     var informAsteroidDestroyed = function (shooter) {
         if (shooter === playerId) {
-            stompClient.send("/app/informAsteroidDestroyed", {}, shooter);
+            points+=100;
+            pointsText.setText(playerId + " "+points);
+            stompClient.send("/client/updatePoints", {}, JSON.stringify({shooter: shooter, points: points}));
         }
     };
     
+    //Se modifico
     var informAsteroidTouch = function (asteroidId) {
-        stompClient.send("/app/informAsteroidTouch", {}, playerId);
-        stompClient.send("/app/eliminateAsteroid", {}, asteroidId);
+        playerLives -= 1;
+        stompClient.send("/client/updateLifes", {}, JSON.stringify({playerId: playerId, lives: playerLives}));
+        stompClient.send("/client/eliminateAsteroid", {}, JSON.stringify({asteroidId: asteroidId}));
+        if(playerLives === 0){
+            //Pierde el man - pasar al estado de gameOver
+            alert("murio mi perro");
+        } 
     };
     
-    var getPlayerFuel = function () {
-        return fullPlayer;
-    };
     
     return {
         connect: connect,
@@ -215,7 +225,6 @@ var ClientModule = (function () {
         informAsteroidTouch: informAsteroidTouch,
         restartGame: restartGame,
         
-        getPlayerFuel: getPlayerFuel,
         updateBarFuels: updateBarFuels
 
     };
