@@ -1,61 +1,37 @@
 package co.edu.escuelaing.arsw.coopasteroids;
 
-import co.edu.escuelaing.arsw.coopasteroids.model.runnables.AsteroidRunnable;
-import co.edu.escuelaing.arsw.coopasteroids.model.runnables.FuelCellRunnable;
-import co.edu.escuelaing.arsw.coopasteroids.model.runnables.LifeCellRunnable;
+import co.edu.escuelaing.arsw.coopasteroids.model.Player;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
- * @author Daniel Ospina - Juan Ortiz
+ * @author Daniel Ospina
  */
-public class GameController { //esto es una sola partida
-    
-    private final Integer POINTS_FOR_ASTEROID = 100;
-    
-    private final StompMessagesHandler s;
+public class GameController {
 
-    private int asteroidId;
-   
-    public GameController(StompMessagesHandler s) {
-        this.asteroidId = 0;
-        System.out.println("New Game Instance created");
+    private final StompMessagesHandler messageHandler;
+    private ConcurrentHashMap<Integer, RoomController> currentRooms;
 
-        this.s = s;
-        spawnAsteroids();
-        spawnFullCells();
-        spawnLifeCells();
-    }
-
-    private void spawnAsteroids() {
-        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        Runnable r = new AsteroidRunnable(s);
-        ex.scheduleAtFixedRate(r, 0, 2500, TimeUnit.MILLISECONDS);
-    }
-
-    public int getAndIncrementAsteroidId() {
-        return asteroidId++;
-    }
-
-    public void restart() {
-        this.asteroidId = 0;
-
-                
+    GameController(StompMessagesHandler messageHandler) {
+        this.messageHandler = messageHandler;
+        this.currentRooms = new ConcurrentHashMap<>();
     }
     
-    private void spawnFullCells() {
-        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        Runnable r = new FuelCellRunnable(s,this);
-        ex.scheduleAtFixedRate(r, 45000, 45000, TimeUnit.MILLISECONDS);
+    public void handleRegisterPlayer(Player player, int roomId) {
+        if (!currentRooms.containsKey(roomId)) currentRooms.put(roomId, new RoomController(messageHandler, roomId));
+        RoomController room = currentRooms.get(roomId);
+        System.out.println("[ROOM " + roomId + "] New Player Received = " + player.getPlayerId() + " " + player.getPlayerX() + " " + player.getPlayerY());
+        messageHandler.handleSendNewPlayer(player, roomId);
     }
-    
-    private void spawnLifeCells() {
-        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        Runnable r = new LifeCellRunnable(s,this);
-        ex.scheduleAtFixedRate(r, 60000, 60000, TimeUnit.MILLISECONDS);
+
+    public void handleGameRestart(int roomId) {
+        RoomController room = currentRooms.get(roomId);
+        room.restart();
+    }
+
+    public int getAndIncrementAsteroidIdByRoom(int roomId) {
+        RoomController room = currentRooms.get(roomId);
+        return room.getAndIncrementAsteroidId();
     }
 
 }

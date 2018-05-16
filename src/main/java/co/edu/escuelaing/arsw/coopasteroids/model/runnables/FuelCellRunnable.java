@@ -1,6 +1,5 @@
 package co.edu.escuelaing.arsw.coopasteroids.model.runnables;
 
-import co.edu.escuelaing.arsw.coopasteroids.GameController;
 import co.edu.escuelaing.arsw.coopasteroids.StompMessagesHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,19 +11,18 @@ import java.util.logging.Logger;
 public class FuelCellRunnable implements Runnable {
 
     private final StompMessagesHandler s;
+    private final int roomId;
 
-    private final GameController gc;
-
-    public FuelCellRunnable(StompMessagesHandler s, GameController gc) {
+    public FuelCellRunnable(StompMessagesHandler s, int roomId) {
         this.s = s;
-        this.gc = gc;
+        this.roomId = roomId;
     }
 
     @Override
     public void run() {
         try {        
-            int[] data = asteroidSpawnPosition();
-            s.handleAddFullCell(data);
+            int[] data = fuelCellSpawnPosition();
+            s.handleAddFuelCell(data, roomId);
 
         } catch (Exception ex) {
             Logger.getLogger(FuelCellRunnable.class.getName()).log(Level.SEVERE, "Error en FuelCellRunnable", ex);
@@ -32,14 +30,13 @@ public class FuelCellRunnable implements Runnable {
 
     }
 
-    private int[] asteroidSpawnPosition() {
+    private int[] fuelCellSpawnPosition() {
         int posX = (int) (Math.random() * 800);
         int posY = (int) (Math.random() * 600);
-
-        //Direction
-        int asteroidAngle = (int) ((Math.atan2(posY, posX) * 180) / Math.PI);
-
-        return new int[]{posX, posY, asteroidAngle};
+        int ranX = (int) (Math.random() * 800);
+        int ranY = (int) (Math.random() * 600);
+        int cellAngle = (int) ((Math.atan2(ranY - posY, ranX - posX) * 180) / Math.PI);
+        return new int[] {posX, posY, cellAngle};
     }
 
 }

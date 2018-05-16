@@ -84,6 +84,7 @@ var GameModule = (function () {
     };
 
     var takeFuelCell = function (player, cell) {
+        console.log("[LOG] Detected Colission");
         //Aumentar Combustible 
         fuelPercent += 20;
         fuelBar.setPercent(fuelPercent);
@@ -235,7 +236,7 @@ var GameModule = (function () {
 
     };
 
-})();
+}());
 
 
 

@@ -22,11 +22,14 @@ var GameOver = {
         });
         txtMenu.anchor.setTo(0.5);
         
-        var boton = game.add.button(game.width / 2, game.height / 2 + 100, "boton", this.startGame, this);
+        var boton = game.add.button(game.width / 2, game.height / 2 + 100, "boton", this.nextScreen, this);
         boton.anchor.setTo(0.5);
         boton.scale.setTo(0.5);
         
         player.kill();
         
+    },
+    nextScreen: function () {
+        game.state.start("RoomMenu");
     }
 };

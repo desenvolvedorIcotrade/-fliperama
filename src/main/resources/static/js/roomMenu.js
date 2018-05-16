@@ -1,6 +1,7 @@
-/* global Phaser, game, PhaserInput */
+/* global Phaser, game, PhaserInput, ClientModule */
 
 var bgMI;
+var selectedRoom;
 
 var RoomMenu = {
     preload: function () {
@@ -28,7 +29,7 @@ var RoomMenu = {
         });
         txtInicial.anchor.setTo(0.5);
         
-        var roomId = game.add.inputField(game.width / 2 - 84, game.height / 2 - 4, {
+        selectedRoom = game.add.inputField(game.width / 2 - 84, game.height / 2 - 4, {
             font: "18px Arial",
             fill: "#212121",
             fontWeight: "bold",
@@ -56,6 +57,7 @@ var RoomMenu = {
         bgMI.tilePosition.x += 0.2;
     },
     startGame: function () {
-        this.state.start("Game");
+        ClientModule.setRoomId(selectedRoom.value);
+        this.state.start("Game");      
     }
 };

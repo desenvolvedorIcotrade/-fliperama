@@ -11,16 +11,18 @@ import java.util.logging.Logger;
 public class AsteroidRunnable implements Runnable {
 
     private final StompMessagesHandler s;
+    private final int roomId;
    
-    public AsteroidRunnable(StompMessagesHandler s) {
+    public AsteroidRunnable(StompMessagesHandler s, int roomId) {
         this.s = s;
+        this.roomId = roomId;
     }
     
     @Override
     public void run() {
         try { 
             int[] data = asteroidSpawnPosition();
-            s.handleAddNewAsteroid(data);
+            s.handleAddNewAsteroid(data, roomId);
         } catch (Exception ex) {
             Logger.getLogger(AsteroidRunnable.class.getName()).log(Level.SEVERE, "Error en AsteroidRunnable", ex);
         }
