@@ -1,4 +1,4 @@
-/* global Phaser, ClientModule, MenuInitial, game, points */
+/* global Phaser, ClientModule, MenuInitial, game, points, playerLives */
 
 var player;
 var cursorKeys;
@@ -11,12 +11,12 @@ var lifesText;
 var connected = false;
 var asteroidsGroup;
 var bulletsGroup;
-var fullCells;
+var fuelCells;
 var bg;
 var lives;
 
-var fullBar;
-var fullPercent = 100;
+var fuelBar;
+var fuelPercent = 100;
 
 
 var barFlag = 40;
@@ -42,7 +42,7 @@ var GameModule = (function () {
                 fill: "#ffffff",
                 align: "center"
             });
-            var lifesT = game.add.text(110, barFlag, "Lifes 3", {
+            var lifesT = game.add.text(200, barFlag, "Lifes 3", {
                 font: "18px Arial",
                 fill: "#ffffff",
                 align: "center"
@@ -55,46 +55,46 @@ var GameModule = (function () {
         }
     };
 
-    var addNewFullCell = function (posX, posY, angle) {
+    var addNewFuelCell = function (posX, posY, angle) {
 
-        var fullCell = fullCells.getFirstDead();
+        var fuelCell = fuelCells.getFirstDead();
 
-        if (fullCell) {
-            fullCell.anchor.setTo(0.5);
-            fullCell.scale.setTo(0.7);
+        if (fuelCell) {
+            fuelCell.anchor.setTo(0.5);
+            fuelCell.scale.setTo(0.7);
 
-            fullCell.reset(posX, posY);
+            fuelCell.reset(posX, posY);
 
-            game.physics.arcade.enable(fullCell);
-            fullCell.body.collideWorldBounds = true;
+            game.physics.arcade.enable(fuelCell);
+            fuelCell.body.collideWorldBounds = true;
 
-            //direction of the fullCell
-            fullCell.body.velocity.x = 20 * Math.cos(angle * Math.PI / 180);
-            fullCell.body.velocity.y = 20 * Math.sin(angle * Math.PI / 180);
+            //direction of the fuelCell
+            fuelCell.body.velocity.x = 20 * Math.cos(angle * Math.PI / 180);
+            fuelCell.body.velocity.y = 20 * Math.sin(angle * Math.PI / 180);
 
-            //bounce of the fullCell
-            fullCell.body.bounce.x = 1;
-            fullCell.body.bounce.y = 1;
+            //bounce of the fuelCell
+            fuelCell.body.bounce.x = 1;
+            fuelCell.body.bounce.y = 1;
 
-            //Take FullCell
-            fullCell.events.onDestroy.add(function () {
+            //Take fuelCell
+            fuelCell.events.onDestroy.add(function () {
                 //Sonido combustible cogido               
             }, this);
         }
     };
 
-    var takeFullCell = function (player, cell) {
+    var takeFuelCell = function (player, cell) {
         //Aumentar Combustible 
-        fullPercent += 20;
-        fullBar.setPercent(fullPercent);
+        fuelPercent += 20;
+        fuelBar.setPercent(fuelPercent);
         //Actualiza otros clientes
-        ClientModule.takeFullCell(cell.z);
-        ClientModule.updateBarFuels();
+        ClientModule.takeFuelCell(cell.z);
+        ClientModule.updateBarfuels();
     };
 
-    var eliminateFullCell = function (index) {
-        var killFull = Object(fullCells.getChildAt(index));
-        killFull.kill();
+    var eliminateFuelCell = function (index) {
+        var killfuel = Object(fuelCells.getChildAt(index));
+        killfuel.kill();
     };
 
     var addNewCellLife = function (posX, posY) {
@@ -200,12 +200,18 @@ var GameModule = (function () {
         }
     };
     
-    var updateBarFuels = function (playerBarID, percent) {
+    var updateBarfuels = function (playerBarID, percent) {
         for (var _x = 0; _x < playerList.length; _x++) { 
             if(playerList[_x].id === playerBarID){
                 playerList[_x].fBar.setPercent(percent);
             }
         }
+    };
+    
+    var initStats = function () {
+        playerLives = 3;
+        points = 0;
+        fuelPercent = 100;
     };
 
     return {
@@ -218,13 +224,14 @@ var GameModule = (function () {
         updateLifes: updateLifes,
         eliminateAsteroid: eliminateAsteroid,
         testGameRestart: testGameRestart,
-        addNewFullCell: addNewFullCell,
-        eliminateFullCell: eliminateFullCell,
-        takeFullCell: takeFullCell,
+        addNewFuelCell: addNewFuelCell,
+        eliminateFuelCell: eliminateFuelCell,
+        takeFuelCell: takeFuelCell,
         addNewCellLife: addNewCellLife,
         takeCellLife: takeCellLife,
         eliminateCellLife: eliminateCellLife,
-        updateBarFuels: updateBarFuels
+        updateBarfuels: updateBarfuels,
+        initStats: initStats
 
     };
 
@@ -238,7 +245,7 @@ var statusMain = {
 
         game.load.image("background", "assets/fondoSpace1.png");
         game.load.spritesheet("player", "assets/shipP1.png", 26, 40);
-        game.load.image("fullCell", "assets/fullCell.png");
+        game.load.image("fuelCell", "assets/fuelCell.png");
         game.load.image("life", "assets/life.png");
         game.load.image("asteroid1", "assets/asteroid1.png");
         game.load.image("bala1", "assets/bala.png");
@@ -267,9 +274,9 @@ var statusMain = {
 
         game.stage.disableVisibilityChange = true;
 
-        fullCells = game.add.group();
-        fullCells.enableBody = true;
-        fullCells.createMultiple(3, "fullCell");
+        fuelCells = game.add.group();
+        fuelCells.enableBody = true;
+        fuelCells.createMultiple(3, "fuelCell");
 
         lives = game.add.group();
         lives.enableBody = true;
@@ -282,8 +289,8 @@ var statusMain = {
 
         //create bar fuel
 
-        fullBar = new HealthBar(game, {x: 140, y: 30, height: 10});
-        fullBar.setBarColor("#02daff");
+        fuelBar = new HealthBar(game, {x: 140, y: 30, height: 10});
+        fuelBar.setBarColor("#02daff");
 
 
         pointsText = game.add.text(10, 5, "", {
@@ -293,7 +300,7 @@ var statusMain = {
         });
         //pointsText.anchor.setTo(0.5, 0.5);
 
-        lifesText = game.add.text(110, 5, "", {
+        lifesText = game.add.text(200, 5, "", {
             font: "18px Arial",
             fill: "#ffffff",
             align: "center"
@@ -304,15 +311,16 @@ var statusMain = {
             onSuccess: function () {
 
                 ClientModule.registerPlayer(playerX, playerY);
+                GameModule.initStats();
                 connected = true;
-                pointsText.setText(ClientModule.getPlayerId() + " 0");
-                lifesText.setText(" Lifes 3");
+                pointsText.setText(ClientModule.getPlayerId() + " " + points);
+                lifesText.setText(" Lifes " + playerLives);
             },
             onFailure: function () {
                 //alert("Can't Connect to Game Server");
             }
         };
-
+        connected = false;
         ClientModule.connect(callback);
     },
     update: function () {
@@ -326,7 +334,7 @@ var statusMain = {
         } else if (cursorKeys.left.isDown) {
             player.angle -= 4;
         }
-        if (cursorKeys.up.isDown && (fullPercent > 0)) {
+        if (cursorKeys.up.isDown && (fuelPercent > 0)) {
             player.animations.play("acceleration");
 
             player.body.velocity.x += Math.cos((player.angle - 90) * Math.PI / 180);
@@ -334,9 +342,9 @@ var statusMain = {
             player.body.velocity.y += Math.sin((player.angle - 90) * Math.PI / 180);
 
             //empty fuel          
-            fullPercent -= 0.1;
-            fullBar.setPercent(fullPercent);
-            ClientModule.updateBarFuels();
+            fuelPercent -= 0.1;
+            fuelBar.setPercent(fuelPercent);
+            ClientModule.updateBarfuels();
 
         } else {
             player.animations.stop("acceleration");
@@ -344,7 +352,7 @@ var statusMain = {
         }
 
         //collision of the cells with the spaceship
-        game.physics.arcade.overlap(player, fullCells, GameModule.takeFullCell, null, this);
+        game.physics.arcade.overlap(player, fuelCells, GameModule.takeFuelCell, null, this);
         //collision of the life with the spaceship
         game.physics.arcade.overlap(player, lives, GameModule.takeCellLife, null, this);
 

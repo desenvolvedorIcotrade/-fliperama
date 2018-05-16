@@ -1,7 +1,7 @@
 package co.edu.escuelaing.arsw.coopasteroids;
 
 import co.edu.escuelaing.arsw.coopasteroids.model.runnables.AsteroidRunnable;
-import co.edu.escuelaing.arsw.coopasteroids.model.runnables.FullCellRunnable;
+import co.edu.escuelaing.arsw.coopasteroids.model.runnables.FuelCellRunnable;
 import co.edu.escuelaing.arsw.coopasteroids.model.runnables.LifeCellRunnable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -48,7 +48,7 @@ public class GameController { //esto es una sola partida
     
     private void spawnFullCells() {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        Runnable r = new FullCellRunnable(s,this);
+        Runnable r = new FuelCellRunnable(s,this);
         ex.scheduleAtFixedRate(r, 45000, 45000, TimeUnit.MILLISECONDS);
     }
     

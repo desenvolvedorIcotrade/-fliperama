@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package co.edu.escuelaing.arsw.coopasteroids.model.runnables;
 
 import co.edu.escuelaing.arsw.coopasteroids.GameController;
@@ -14,13 +9,13 @@ import java.util.logging.Logger;
  *
  * @author juan
  */
-public class FullCellRunnable implements Runnable {
+public class FuelCellRunnable implements Runnable {
 
     private final StompMessagesHandler s;
 
     private final GameController gc;
 
-    public FullCellRunnable(StompMessagesHandler s, GameController gc) {
+    public FuelCellRunnable(StompMessagesHandler s, GameController gc) {
         this.s = s;
         this.gc = gc;
     }
@@ -32,7 +27,7 @@ public class FullCellRunnable implements Runnable {
             s.handleAddFullCell(data);
 
         } catch (Exception ex) {
-            Logger.getLogger(FullCellRunnable.class.getName()).log(Level.SEVERE, "Error en FullCellRunnable", ex);
+            Logger.getLogger(FuelCellRunnable.class.getName()).log(Level.SEVERE, "Error en FuelCellRunnable", ex);
         }
 
     }

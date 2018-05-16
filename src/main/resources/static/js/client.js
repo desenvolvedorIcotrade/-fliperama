@@ -1,4 +1,4 @@
-/* global Stomp, GameModule, SockJS, pointsText, lifesText, fullPercent, game */
+/* global Stomp, GameModule, SockJS, pointsText, lifesText, fuelPercent, game, GameOver */
 var playerId = null;
 
 var playerLives = 3;
@@ -113,7 +113,7 @@ var ClientModule = (function () {
         subscribeToEliminateAsteroids();
         subscribeToGameRestart();
 
-        subscribeToFullCells();
+        subscribeToFuelCells();
         suscribeToLives();
         
         subscribeToBarFuel();
@@ -126,37 +126,37 @@ var ClientModule = (function () {
         //Topico para nuevas barras de combustible
         stompClient.subscribe("/client/updateBarFuels", function (eventbody) {   
             var data = JSON.parse(eventbody.body);
-            GameModule.updateBarFuels(data.playerId, data.percentBar);
+            GameModule.updateBarfuels(data.playerId, data.percentBar);
         });
         
                 
     };
     
-    var updateBarFuels = function (){
-        stompClient.send("/client/updateBarFuels", {}, JSON.stringify({playerId: playerId, percentBar: fullPercent}));
+    var updateBarfuels = function (){
+        stompClient.send("/client/updateBarFuels", {}, JSON.stringify({playerId: playerId, percentBar: fuelPercent}));
     };
     
-    //Suscribe to newFullCells
-    var subscribeToFullCells = function () {
+    //Suscribe to newFuelCells
+    var subscribeToFuelCells = function () {
         
         //Topico para nuevas celulas de combustion
-        stompClient.subscribe("/client/newFullCell", function (eventbody) {           
+        stompClient.subscribe("/client/newFuelCell", function (eventbody) {           
             var data = JSON.parse(eventbody.body);
-            GameModule.addNewFullCell(data[0], data[1], data[2]);
+            GameModule.addNewFuelCell(data[0], data[1], data[2]);
         });
         
         //Topico para cuando toman una celula
-        stompClient.subscribe("/client/takefullCell", function (eventbody) { 
+        stompClient.subscribe("/client/takeFuelCell", function (eventbody) { 
             var data = JSON.parse(eventbody.body);
-            GameModule.eliminateFullCell(data.indexCell);
+            GameModule.eliminateFuelCell(data.indexCell);
         });
         
         
     };
     
-    var takeFullCell = function (index) {
+    var takeFuelCell = function (index) {
         //Envia al topico que celda fue cogida
-        stompClient.send("/client/takefullCell", {}, JSON.stringify({indexCell: index}));
+        stompClient.send("/client/takeFuelCell", {}, JSON.stringify({indexCell: index}));
 
     };
     
@@ -178,18 +178,16 @@ var ClientModule = (function () {
     
     var takeCellLife = function (index) {
         playerLives += 1;
-        lifesText.setText("Lifes "+playerLives);
+        lifesText.setText("Lifes " + playerLives);
         stompClient.send("/client/takeCellLife", {}, JSON.stringify({indexCell: index}));
         stompClient.send("/client/updateLifes", {}, JSON.stringify({playerId: playerId, lives: playerLives}));
      
     };
     
-    // modifique para que enviara de una vez al topico y no al servidor
     var playerShoots = function (playerX, playerY, playerAngle) {
         stompClient.send("/client/playerShoots", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
     
-    //Se modifico
     var informAsteroidDestroyed = function (shooter) {
         if (shooter === playerId) {
             points+=100;
@@ -198,15 +196,15 @@ var ClientModule = (function () {
         }
     };
     
-    //Se modifico
     var informAsteroidTouch = function (asteroidId) {
         playerLives -= 1;
         lifesText.setText("Lifes "+playerLives);
         stompClient.send("/client/updateLifes", {}, JSON.stringify({playerId: playerId, lives: playerLives}));
         stompClient.send("/client/eliminateAsteroid", {}, JSON.stringify({asteroidId: asteroidId}));
         if(playerLives === 0){
-            //se pasa al ultimo estado 
-            game.state.start("GameOver");
+            //se pasa al ultimo estado
+            GameOver.lostScreen();
+            //game.state.start("GameOver");
         } 
     };
     
@@ -217,16 +215,13 @@ var ClientModule = (function () {
         getPlayerId:getPlayerId,
         updatePlayer: updatePlayer,
         sendUpdatePlayer: sendUpdatePlayer,
-
-        takeFullCell: takeFullCell,
+        takeFuelCell: takeFuelCell,
         takeCellLife: takeCellLife,
-        
         playerShoots: playerShoots,
         informAsteroidDestroyed: informAsteroidDestroyed,
         informAsteroidTouch: informAsteroidTouch,
         restartGame: restartGame,
-        
-        updateBarFuels: updateBarFuels
+        updateBarfuels: updateBarfuels
 
     };
     

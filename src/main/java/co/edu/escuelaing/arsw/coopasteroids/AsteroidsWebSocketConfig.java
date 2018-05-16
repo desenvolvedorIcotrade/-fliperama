@@ -9,8 +9,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 
 /**
- *
- * @author daniel
+ * Configuration of the Message Broker
+ * @author Daniel Ospina
  */
 @Configuration
 @EnableWebSocketMessageBroker
