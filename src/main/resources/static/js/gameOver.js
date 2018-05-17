@@ -1,4 +1,4 @@
-/* global Phaser, game, playerId, points, player*/
+/* global Phaser, game, playerId, points, player, ClientModule*/
 
 var bgGO;
 
@@ -27,9 +27,11 @@ var GameOver = {
         boton.scale.setTo(0.5);
         
         player.kill();
+        ClientModule.informPlayerKilled(playerId);
         
     },
     nextScreen: function () {
         game.state.start("RoomMenu");
+        ClientModule.disconnectStomp();
     }
 };

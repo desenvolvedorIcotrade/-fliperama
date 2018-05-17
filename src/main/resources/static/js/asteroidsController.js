@@ -32,26 +32,35 @@ var GameModule = (function () {
     //se modifico
     var addNewPlayer = function (playerData) {
         if (ClientModule.getPlayerId() !== playerData.playerId) {
-            var newPlayer = game.add.sprite(playerData.playerX, playerData.playerY, "player");
+            var revived = false;
+            for (var _x = 0; _x < playerList.length; _x++) { 
+                if(playerList[_x].id === playerData.playerId){
+                    playerList[_x].sprite.revive();
+                    revived = true;
+                }
+            }
+            if (!revived) {
+                var newPlayer = game.add.sprite(playerData.playerX, playerData.playerY, "player");
 
-            var fBar = new HealthBar(game, {x: 140 , y: barFlag + 25, height: 10});
-            fBar.setBarColor("#02daff");
-            
-            var pointsT= game.add.text(10 , barFlag, playerData.playerId + " 0", {
-                font: "18px Arial",
-                fill: "#ffffff",
-                align: "center"
-            });
-            var lifesT = game.add.text(200, barFlag, "Lifes 3", {
-                font: "18px Arial",
-                fill: "#ffffff",
-                align: "center"
-            });
-            
-            barFlag += 40; 
+                var fBar = new HealthBar(game, {x: 140 , y: barFlag + 25, height: 10});
+                fBar.setBarColor("#02daff");
 
-            playerList.push({id: playerData.playerId, sprite: newPlayer, fBar: fBar, pointsT: pointsT, lifesT: lifesT});
-            newPlayer.anchor.setTo(0.5);
+                var pointsT= game.add.text(10 , barFlag, playerData.playerId + " 0", {
+                    font: "18px Arial",
+                    fill: "#ffffff",
+                    align: "center"
+                });
+                var lifesT = game.add.text(200, barFlag, "Lifes 3", {
+                    font: "18px Arial",
+                    fill: "#ffffff",
+                    align: "center"
+                });
+
+                barFlag += 40;
+
+                playerList.push({id: playerData.playerId, sprite: newPlayer, fBar: fBar, pointsT: pointsT, lifesT: lifesT});
+                newPlayer.anchor.setTo(0.5);
+            }
         }
     };
 
@@ -84,9 +93,11 @@ var GameModule = (function () {
     };
 
     var takeFuelCell = function (player, cell) {
-        console.log("[LOG] Detected Colission");
         //Aumentar Combustible 
         fuelPercent += 20;
+        if (fuelPercent > 100) {
+            fuelPercent = 100;
+        }
         fuelBar.setPercent(fuelPercent);
         //Actualiza otros clientes
         ClientModule.takeFuelCell(cell.z);
@@ -213,6 +224,15 @@ var GameModule = (function () {
         playerLives = 3;
         points = 0;
         fuelPercent = 100;
+        playerList.length = 0;
+    };
+    
+    var killPlayer = function (thePlayerId) {
+        for (var _x = 0; _x < playerList.length; _x++) { 
+            if(playerList[_x].id === thePlayerId){
+                playerList[_x].sprite.kill();
+            }
+        }
     };
 
     return {
@@ -232,7 +252,8 @@ var GameModule = (function () {
         takeCellLife: takeCellLife,
         eliminateCellLife: eliminateCellLife,
         updateBarfuels: updateBarfuels,
-        initStats: initStats
+        initStats: initStats,
+        killPlayer: killPlayer
 
     };
 
@@ -386,7 +407,6 @@ var statusMain = {
     asteroidTouch: function (plyr, asteroid) {
         asteroid.kill();
         ClientModule.informAsteroidTouch(asteroid.name);
-
     }
 };
 

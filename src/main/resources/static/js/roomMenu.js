@@ -57,7 +57,11 @@ var RoomMenu = {
         bgMI.tilePosition.x += 0.2;
     },
     startGame: function () {
-        ClientModule.setRoomId(selectedRoom.value);
-        this.state.start("Game");      
+        var value = selectedRoom.value;
+        if (value === "") {
+            value = 1000;
+        }
+        ClientModule.setRoomId(value);
+        this.state.start("Game"); 
     }
 };

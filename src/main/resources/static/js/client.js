@@ -93,6 +93,13 @@ var ClientModule = (function () {
         });
     };
     
+    var subscribeToPlayerKilled = function () {
+        stompClient.subscribe("/client/room" + roomId + "/informPlayerKilled", function (eventbody) {
+            var data = eventbody.body;
+            GameModule.killPlayer(data);
+        });
+    };
+    
     var sendUpdatePlayer = function (playerX, playerY, playerAngle) {
         stompClient.send("/app/room" + roomId + "/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
@@ -114,6 +121,7 @@ var ClientModule = (function () {
         subscribeToFuelCells();
         suscribeToLives();
         subscribeToBarFuel();
+        subscribeToPlayerKilled();
     };
     
     //Suscribe to BarFuel
@@ -143,7 +151,6 @@ var ClientModule = (function () {
         
         //Topico para cuando toman una celula
         stompClient.subscribe("/client/room" + roomId + "/takeFuelCell", function (eventbody) { 
-            console.log("[LOG] takeFuelCell");
             var data = JSON.parse(eventbody.body);
             GameModule.eliminateFuelCell(data.indexCell);
         });
@@ -152,7 +159,6 @@ var ClientModule = (function () {
     };
     
     var takeFuelCell = function (index) {
-        console.log("[LOG] sending takeFuelCell");
         stompClient.send("/client/room" + roomId + "/takeFuelCell", {}, JSON.stringify({indexCell: index}));
     };
     
@@ -203,8 +209,18 @@ var ClientModule = (function () {
         }
     };
     
+    var informPlayerKilled = function (thePlayerId) {
+        stompClient.send("/client/room" + roomId + "/informPlayerKilled", {}, thePlayerId);
+    };
+    
     var setRoomId = function (roomnumber) {
         roomId = roomnumber;
+    };
+    
+    var disconnectStomp = function () {
+        stompClient.disconnect(function () {
+            console.log("[LOG] STOMP Disconnected");
+        });
     };
     
     
@@ -221,7 +237,9 @@ var ClientModule = (function () {
         informAsteroidTouch: informAsteroidTouch,
         restartGame: restartGame,
         updateBarfuels: updateBarfuels,
-        setRoomId: setRoomId
+        setRoomId: setRoomId,
+        informPlayerKilled: informPlayerKilled,
+        disconnectStomp: disconnectStomp 
 
     };
     
