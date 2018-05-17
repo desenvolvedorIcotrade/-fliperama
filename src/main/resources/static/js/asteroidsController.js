@@ -1,4 +1,4 @@
-/* global Phaser, ClientModule, MenuInitial, game, points, playerLives */
+/* global Phaser, ClientModule, MenuInitial, game, points, playerLives, HealthBar */
 
 var player;
 var cursorKeys;

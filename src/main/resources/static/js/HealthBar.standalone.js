@@ -45,10 +45,10 @@ HealthBar.prototype.mergeWithDefaultConfiguration = function(newConfig) {
         x: 0,
         y: 0,
         bg: {
-            color: '#651828'
+            color: "#651828"
         },
         bar: {
-            color: '#FEFF03'
+            color: "#FEFF03"
         },
         animationDuration: 200,
         flipped: false,
@@ -115,8 +115,12 @@ HealthBar.prototype.setPosition = function (x, y) {
 
 
 HealthBar.prototype.setPercent = function(newValue){
-    if(newValue < 0) newValue = 0;
-    if(newValue > 100) newValue = 100;
+    if(newValue < 0) {
+        newValue = 0;
+    }
+    if(newValue > 100) {
+        newValue = 100;
+    }
 
     var newWidth =  (newValue * this.config.width) / 100;
 

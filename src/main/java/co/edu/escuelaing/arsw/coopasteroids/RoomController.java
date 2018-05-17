@@ -3,7 +3,6 @@ package co.edu.escuelaing.arsw.coopasteroids;
 import co.edu.escuelaing.arsw.coopasteroids.model.runnables.AsteroidRunnable;
 import co.edu.escuelaing.arsw.coopasteroids.model.runnables.FuelCellRunnable;
 import co.edu.escuelaing.arsw.coopasteroids.model.runnables.LifeCellRunnable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;

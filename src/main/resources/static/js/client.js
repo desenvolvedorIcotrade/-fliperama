@@ -93,6 +93,30 @@ var ClientModule = (function () {
         });
     };
     
+        //Suscribe to newFuelCells
+    var subscribeToFuelCells = function () {
+        //Topico para nuevas celulas de combustion
+        stompClient.subscribe("/client/room" + roomId + "/newFuelCell", function (eventbody) {           
+            var data = JSON.parse(eventbody.body);
+            GameModule.addNewFuelCell(data[0], data[1], data[2]);
+        });
+        
+        //Topico para cuando toman una celula
+        stompClient.subscribe("/client/room" + roomId + "/takeFuelCell", function (eventbody) { 
+            var data = JSON.parse(eventbody.body);
+            GameModule.eliminateFuelCell(data.indexCell);
+        });
+    };
+    
+        //Suscribe to BarFuel
+    var subscribeToBarFuel = function () {
+        //Topico para nuevas barras de combustible
+        stompClient.subscribe("/client/room" + roomId + "/updateBarFuels", function (eventbody) {   
+            var data = JSON.parse(eventbody.body);
+            GameModule.updateBarfuels(data.playerId, data.percentBar);
+        });
+    };
+    
     var subscribeToPlayerKilled = function () {
         stompClient.subscribe("/client/room" + roomId + "/informPlayerKilled", function (eventbody) {
             var data = eventbody.body;
@@ -124,38 +148,8 @@ var ClientModule = (function () {
         subscribeToPlayerKilled();
     };
     
-    //Suscribe to BarFuel
-    var subscribeToBarFuel = function () {
-        
-        //Topico para nuevas barras de combustible
-        stompClient.subscribe("/client/room" + roomId + "/updateBarFuels", function (eventbody) {   
-            var data = JSON.parse(eventbody.body);
-            GameModule.updateBarfuels(data.playerId, data.percentBar);
-        });
-        
-                
-    };
-    
     var updateBarfuels = function (){
         stompClient.send("/client/room" + roomId + "/updateBarFuels", {}, JSON.stringify({playerId: playerId, percentBar: fuelPercent}));
-    };
-    
-    //Suscribe to newFuelCells
-    var subscribeToFuelCells = function () {
-        
-        //Topico para nuevas celulas de combustion
-        stompClient.subscribe("/client/room" + roomId + "/newFuelCell", function (eventbody) {           
-            var data = JSON.parse(eventbody.body);
-            GameModule.addNewFuelCell(data[0], data[1], data[2]);
-        });
-        
-        //Topico para cuando toman una celula
-        stompClient.subscribe("/client/room" + roomId + "/takeFuelCell", function (eventbody) { 
-            var data = JSON.parse(eventbody.body);
-            GameModule.eliminateFuelCell(data.indexCell);
-        });
-        
-        
     };
     
     var takeFuelCell = function (index) {

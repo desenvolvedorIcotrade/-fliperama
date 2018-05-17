@@ -11,8 +11,8 @@ var GameOver = {
         });
         txtGO.anchor.setTo(0.5);
         var grd = txtGO.context.createLinearGradient(0, 0, 0, txtGO.height);
-        grd.addColorStop(0, '#fff67a');
-        grd.addColorStop(1, '#a09501');
+        grd.addColorStop(0, "#fff67a");
+        grd.addColorStop(1, "#a09501");
         txtGO.fill = grd;
         
         var txtMenu = game.add.text(game.width / 2, game.height / 2 + 50, "Volver al Menu", {
