@@ -19,7 +19,7 @@ public class StompMessagesHandler {
     @Autowired
     public SimpMessagingTemplate msgt;
     
-    @MessageMapping("/room{roomId}/registerPlayer")
+    @MessageMapping("/room{roomId}_registerPlayer")
     public void handleRegisterPlayer(Player player, @DestinationVariable int roomId) {
         if (game == null) game = new GameController(this);
         game.handleRegisterPlayer(player, roomId);
@@ -27,28 +27,28 @@ public class StompMessagesHandler {
 
     public void handleAddFuelCell(int[] data, int roomId) {
         System.out.println("[ROOM " + roomId + "] New FuelCell sent: " + data[0] + " " + data[1] + " " + data[2]);
-        msgt.convertAndSend("/client/room" + roomId + "/newFuelCell", data);
+        msgt.convertAndSend("/topic/room" + roomId + "_newFuelCell", data);
     }
     
     public void handleAddLifeCell(int[] data, int roomId) {
         System.out.println("[ROOM " + roomId + "] New LifeCell sent: " + data[0] + " " + data[1]);
-        msgt.convertAndSend("/client/room" + roomId + "/newCellLife", data);
+        msgt.convertAndSend("/topic/room" + roomId + "_newCellLife", data);
     }
 
     public void handleAddNewAsteroid(int[] data, int roomId) {
         data[3] = game.getAndIncrementAsteroidIdByRoom(roomId);
-        msgt.convertAndSend("/client/room" + roomId + "/newAsteroid", data);
+        msgt.convertAndSend("/topic/room" + roomId + "_newAsteroid", data);
     }
     
-    @MessageMapping("/room{roomId}/restartGame")
+    @MessageMapping("/room{roomId}_restartGame")
     public void handleGameRestart(@DestinationVariable int roomId) {
         System.out.println("[ROOM " + roomId + "] Restarting game...");
         game.handleGameRestart(roomId);
-        msgt.convertAndSend("/client/room" + roomId + "/gameRestart", "");
+        msgt.convertAndSend("/topic/room" + roomId + "_gameRestart", "");
     }
 
     public void handleSendNewPlayer(Player player, int roomId) {
-        msgt.convertAndSend("/client/room" + roomId + "/newPlayer", player);
+        msgt.convertAndSend("/topic/room" + roomId + "_newPlayer", player);
     }
 
 }
