@@ -18,8 +18,8 @@ var RoomMenu = {
         });
         txtTitulo.anchor.setTo(0.5);
         var grd = txtTitulo.context.createLinearGradient(0, 0, 0, txtTitulo.height);
-        grd.addColorStop(0, '#8ED6FF');
-        grd.addColorStop(1, '#004CB3');
+        grd.addColorStop(0, "#8ED6FF");
+        grd.addColorStop(1, "#004CB3");
         txtTitulo.fill = grd;
         
         var txtInicial = game.add.text(game.width / 2, game.height / 2 - 30, "Unirse a Sala", {

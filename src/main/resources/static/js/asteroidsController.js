@@ -7,19 +7,16 @@ var shootFlag = false;
 var restartFlag = false;
 var pointsText;
 var lifesText;
-
 var connected = false;
 var asteroidsGroup;
 var bulletsGroup;
 var fuelCells;
 var bg;
 var lives;
-
 var fuelBar;
 var fuelPercent = 100;
-
-
 var barFlag = 40;
+var tickRateUpdate = 0;
 
 var GameModule = (function () {
 
@@ -94,7 +91,7 @@ var GameModule = (function () {
 
     var takeFuelCell = function (player, cell) {
         //Aumentar Combustible 
-        fuelPercent += 20;
+        fuelPercent += 50;
         if (fuelPercent > 100) {
             fuelPercent = 100;
         }
@@ -152,8 +149,8 @@ var GameModule = (function () {
         asteroid1.name = asteroidId;
         asteroid1.angle = angle;
         asteroid1.anchor.setTo(0.5);
-        asteroid1.body.velocity.x = 50 * Math.cos((asteroid1.angle) * Math.PI / 180);
-        asteroid1.body.velocity.y = 50 * Math.sin((asteroid1.angle) * Math.PI / 180);
+        asteroid1.body.velocity.x = 100 * Math.cos((asteroid1.angle) * Math.PI / 180);
+        asteroid1.body.velocity.y = 100 * Math.sin((asteroid1.angle) * Math.PI / 180);
     };
 
     var playerShoots = function (posX, posY, angle, playerId) {
@@ -393,7 +390,13 @@ var statusMain = {
 
         //Multiplayer position update - revisar
         if (connected === true) {
-            ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);
+            if (tickRateUpdate >= 2) { 
+                ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);
+                tickRateUpdate = 0;
+            }
+            else {
+                tickRateUpdate += 1;
+            }
         }
     },
     addNewAsteroid: function () {

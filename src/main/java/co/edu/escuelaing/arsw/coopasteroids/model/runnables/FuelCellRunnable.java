@@ -5,8 +5,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author juan
+ * Selects the position, direction and sends a new Fuel Cell to the room
+ * @author Juan Ortiz
  */
 public class FuelCellRunnable implements Runnable {
 

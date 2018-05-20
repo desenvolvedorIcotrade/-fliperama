@@ -8,7 +8,7 @@ var points = 0;
 var ClientModule = (function () {
     
     var stompClient = null;
-    var roomId = 1000; //ESTE CAMBIA CUANDO SE IMPLEMENTE LA FORMA DE ELEGIR SALA...
+    var roomId = 1000;
     
     var connect = function (callback) {
         var socket = new SockJS("/stompendpoint");
@@ -93,6 +93,22 @@ var ClientModule = (function () {
         });
     };
     
+        //Suscribe to newLives
+    var suscribeToLives = function () {
+        
+        //Topico para nuevas vidas
+        stompClient.subscribe("/client/room" + roomId + "/newCellLife", function (eventbody) {           
+            var data = JSON.parse(eventbody.body);
+            GameModule.addNewCellLife(data[0], data[1]);
+        });
+        
+        //Topico para cuando toman una vida
+        stompClient.subscribe("/client/room" + roomId + "/takeCellLife", function (eventbody) { 
+            var data = JSON.parse(eventbody.body);
+            GameModule.eliminateCellLife(data.indexCell);
+        });  
+    };
+    
         //Suscribe to newFuelCells
     var subscribeToFuelCells = function () {
         //Topico para nuevas celulas de combustion
@@ -156,22 +172,6 @@ var ClientModule = (function () {
         stompClient.send("/client/room" + roomId + "/takeFuelCell", {}, JSON.stringify({indexCell: index}));
     };
     
-    //Suscribe to newLives
-    var suscribeToLives = function () {
-        
-        //Topico para nuevas vidas
-        stompClient.subscribe("/client/room" + roomId + "/newCellLife", function (eventbody) {           
-            var data = JSON.parse(eventbody.body);
-            GameModule.addNewCellLife(data[0], data[1]);
-        });
-        
-        //Topico para cuando toman una vida
-        stompClient.subscribe("/client/room" + roomId + "/takeCellLife", function (eventbody) { 
-            var data = JSON.parse(eventbody.body);
-            GameModule.eliminateCellLife(data.indexCell);
-        });  
-    };
-    
     var takeCellLife = function (index) {
         playerLives += 1;
         lifesText.setText("Lifes " + playerLives);
@@ -213,7 +213,7 @@ var ClientModule = (function () {
     
     var disconnectStomp = function () {
         stompClient.disconnect(function () {
-            console.log("[LOG] STOMP Disconnected");
+            console.info("Disconnected from Room");
         });
     };
     

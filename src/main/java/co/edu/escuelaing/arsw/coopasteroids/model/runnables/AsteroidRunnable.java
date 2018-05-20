@@ -5,8 +5,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author daniel
+ * Selects the position, direction and sends a new Asteroid to the room
+ * @author Daniel Ospina
  */
 public class AsteroidRunnable implements Runnable {
 
@@ -29,6 +29,10 @@ public class AsteroidRunnable implements Runnable {
         
     }
     
+    /**
+     * Selects a spawn position at the borders of the screen and a random angle pointing to the playable field
+     * @return an array with spawn data: {positionX, positionY, angle, *placeholder for additional data*}
+     */
     private int[] asteroidSpawnPosition() {
         int ranX = (int) (Math.random() * 800);
         int ranY = (int) (Math.random() * 600);

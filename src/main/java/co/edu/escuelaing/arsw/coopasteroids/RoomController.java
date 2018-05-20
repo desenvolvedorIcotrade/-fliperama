@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * Controls a unique Room
  * @author Daniel Ospina - Juan Ortiz
  */
 public class RoomController {
@@ -26,31 +26,47 @@ public class RoomController {
         spawnFuelCells();
         spawnLifeCells();
     }
-
+    
+    /**
+     * Spawns asteroids at a fixed Rate in the room
+     */
     private void spawnAsteroids() {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable r = new AsteroidRunnable(s, roomId);
-        ex.scheduleAtFixedRate(r, 100, 2500, TimeUnit.MILLISECONDS);
+        ex.scheduleAtFixedRate(r, 100, 1000, TimeUnit.MILLISECONDS);
     }
-
+    
+    /**
+     * Returns the next Id for the asteroid in the room
+     * @return id of the asteroid
+     */
     public int getAndIncrementAsteroidId() {
         return asteroidId++;
     }
-
+    
+    /**
+     * Restarts the Room Game
+     */
     public void restart() {
         this.asteroidId = 0;      
     }
     
+    /**
+     * Spawns Fuel Cells at a fixed Rate in the room
+     */
     private void spawnFuelCells() {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable r = new FuelCellRunnable(s, roomId);
-        ex.scheduleAtFixedRate(r, 45000, 45000, TimeUnit.MILLISECONDS);
+        ex.scheduleAtFixedRate(r, 25000, 20000, TimeUnit.MILLISECONDS);
     }
     
+    /**
+     * Spawns Life Cells at a fixed Rate in the room
+     */
     private void spawnLifeCells() {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable r = new LifeCellRunnable(s, roomId);
-        ex.scheduleAtFixedRate(r, 60000, 60000, TimeUnit.MILLISECONDS);
+        ex.scheduleAtFixedRate(r, 35000, 45000, TimeUnit.MILLISECONDS);
     }
     
 }

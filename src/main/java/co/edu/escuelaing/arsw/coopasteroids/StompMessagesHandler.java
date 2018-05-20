@@ -8,7 +8,7 @@ import co.edu.escuelaing.arsw.coopasteroids.model.Player;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 
 /**
- *
+ * Stomp Message Handler, organizes the communication between backend and front end
  * @author Daniel Ospina - Juan Ortiz
  */
 @Controller
@@ -43,7 +43,6 @@ public class StompMessagesHandler {
 
     public void handleAddNewAsteroid(int[] data, int roomId) {
         data[3] = game.getAndIncrementAsteroidIdByRoom(roomId);
-        System.out.println("[ROOM " + roomId + "] New Asteroid sent: " + data[0] + " " + data[1] + " " + data[2] + " " + data[3]);
         msgt.convertAndSend("/client/room" + roomId + "/newAsteroid", data);
     }
     

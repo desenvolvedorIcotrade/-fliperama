@@ -5,8 +5,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author juan
+ * Selects the position, direction and sends a new Life Cell to the room
+ * @author Juan Ortiz
  */
 public class LifeCellRunnable implements Runnable {
 

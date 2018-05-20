@@ -1,7 +1,7 @@
 package co.edu.escuelaing.arsw.coopasteroids.model;
 
 /**
- * //TODO
+ * A representation of a player in the Game
  * @author Daniel Ospina y Juan Ortiz
  */
 public class Player {
