@@ -5,28 +5,34 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author daniel
+ * Selects the position, direction and sends a new Asteroid to the room
+ * @author Daniel Ospina
  */
 public class AsteroidRunnable implements Runnable {
 
     private final StompMessagesHandler s;
+    private final int roomId;
    
-    public AsteroidRunnable(StompMessagesHandler s) {
+    public AsteroidRunnable(StompMessagesHandler s, int roomId) {
         this.s = s;
+        this.roomId = roomId;
     }
     
     @Override
     public void run() {
         try { 
             int[] data = asteroidSpawnPosition();
-            s.handleAddNewAsteroid(data);
+            s.handleAddNewAsteroid(data, roomId);
         } catch (Exception ex) {
             Logger.getLogger(AsteroidRunnable.class.getName()).log(Level.SEVERE, "Error en AsteroidRunnable", ex);
         }
         
     }
     
+    /**
+     * Selects a spawn position at the borders of the screen and a random angle pointing to the playable field
+     * @return an array with spawn data: {positionX, positionY, angle, *placeholder for additional data*}
+     */
     private int[] asteroidSpawnPosition() {
         int ranX = (int) (Math.random() * 800);
         int ranY = (int) (Math.random() * 600);

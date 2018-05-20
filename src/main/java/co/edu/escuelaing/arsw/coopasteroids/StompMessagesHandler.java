@@ -1,14 +1,14 @@
 package co.edu.escuelaing.arsw.coopasteroids;
 
-import co.edu.escuelaing.arsw.coopasteroids.model.FullCell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import co.edu.escuelaing.arsw.coopasteroids.model.Player;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 
 /**
- *
+ * Stomp Message Handler, organizes the communication between backend and front end
  * @author Daniel Ospina - Juan Ortiz
  */
 @Controller
@@ -19,67 +19,36 @@ public class StompMessagesHandler {
     @Autowired
     public SimpMessagingTemplate msgt;
     
-    @MessageMapping("/registerPlayer")
-    public void handleRegisterPlayer(Player player) {
+    @MessageMapping("/room{roomId}/registerPlayer")
+    public void handleRegisterPlayer(Player player, @DestinationVariable int roomId) {
         if (game == null) game = new GameController(this);
-        System.out.println("New Player Received = " + player.getPlayerId() + " " + player.getPlayerX() + " " + player.getPlayerY());
-        game.setPlayerLifes(player.getPlayerId(), 3);
-        game.setPlayerPoints(player.getPlayerId(), 0);
-        msgt.convertAndSend("/client/newPlayer", player);
-    }
-    
-    @MessageMapping("/updatePlayer")
-    public void handleUpdatePlayer(Player player) {
-        msgt.convertAndSend("/client/playerUpdate", player);
-    }
-    
+        game.handleRegisterPlayer(player, roomId);
+    }    
 
-    public void handleAddFullCell(int[] data) {
-        System.out.println("New FullCell sent: " + data[0] + " " + data[1] + " " + data[2]);
-        msgt.convertAndSend("/client/newFullCell", data);
+    public void handleAddFuelCell(int[] data, int roomId) {
+        System.out.println("[ROOM " + roomId + "] New FuelCell sent: " + data[0] + " " + data[1] + " " + data[2]);
+        msgt.convertAndSend("/client/room" + roomId + "/newFuelCell", data);
     }
     
-    public void handleAddLifeCell(int[] data) {
-        System.out.println("New LifeCell sent: " + data[0] + " " + data[1]);
-        msgt.convertAndSend("/client/newCellLife", data);
+    public void handleAddLifeCell(int[] data, int roomId) {
+        System.out.println("[ROOM " + roomId + "] New LifeCell sent: " + data[0] + " " + data[1]);
+        msgt.convertAndSend("/client/room" + roomId + "/newCellLife", data);
     }
 
-    
-    public void handleAddNewAsteroid(int[] data) {
-        data[3] = game.getAndIncrementAsteroidId();
-        System.out.println("New Asteroid sent: " + data[0] + " " + data[1] + " " + data[2] + " " + data[3]);
-        msgt.convertAndSend("/client/newAsteroid", data);
+    public void handleAddNewAsteroid(int[] data, int roomId) {
+        data[3] = game.getAndIncrementAsteroidIdByRoom(roomId);
+        msgt.convertAndSend("/client/room" + roomId + "/newAsteroid", data);
     }
     
-    @MessageMapping("/playerShoots")
-    public void handlePlayerShoots(Player player) {
-        msgt.convertAndSend("/client/playerShoots", player);
+    @MessageMapping("/room{roomId}/restartGame")
+    public void handleGameRestart(@DestinationVariable int roomId) {
+        System.out.println("[ROOM " + roomId + "] Restarting game...");
+        game.handleGameRestart(roomId);
+        msgt.convertAndSend("/client/room" + roomId + "/gameRestart", "");
     }
-    
-    @MessageMapping("/informAsteroidDestroyed")
-    public void handleInformAsteroidDestroyed(String playerId) {
-        System.out.println("[" + playerId + "] destroyed an asteroid.");
-        game.asteroidDestroyedByPlayer(playerId);
-        System.out.println("Player Points: " + game.getPlayerPoints());
-        msgt.convertAndSend("/client/updatePoints", game.getPlayerPoints());
-    }
-    
-    @MessageMapping("/informAsteroidTouch")
-    public void handleInformAsteroidTouch(String playerId) {
-        game.reduceLifeCount(playerId);
-        msgt.convertAndSend("/client/updateLifes", game.getPlayerLifes());
-    }
-    
-    @MessageMapping("/eliminateAsteroid")
-    public void handleEliminateAsteroid(String asteroidId) {
-        msgt.convertAndSend("/client/eliminateAsteroid", asteroidId);
-    }
-    
-    @MessageMapping("/restartGame")
-    public void handleGameRestart() {
-        System.out.println("Restarting game...");
-        game.restart();
-        msgt.convertAndSend("/client/gameRestart", "");
+
+    public void handleSendNewPlayer(Player player, int roomId) {
+        msgt.convertAndSend("/client/room" + roomId + "/newPlayer", player);
     }
 
 }

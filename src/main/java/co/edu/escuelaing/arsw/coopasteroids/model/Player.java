@@ -1,14 +1,24 @@
 package co.edu.escuelaing.arsw.coopasteroids.model;
 
 /**
- * //TODO
- * @author Daniel Ospina
+ * A representation of a player in the Game
+ * @author Daniel Ospina y Juan Ortiz
  */
 public class Player {
     private double playerX;
     private double playerY;
     private String playerId;
     private int playerAngle;
+    
+    private int  numID;
+
+    public int getNumID() {
+        return numID;
+    }
+
+    public void setNumID(int numID) {
+        this.numID = numID;
+    }
 
     public double getPlayerX() {
         return playerX;
