@@ -23,13 +23,7 @@ public class StompMessagesHandler {
     public void handleRegisterPlayer(Player player, @DestinationVariable int roomId) {
         if (game == null) game = new GameController(this);
         game.handleRegisterPlayer(player, roomId);
-    }
-    
-    @MessageMapping("/room{roomId}/updatePlayer")
-    public void handleUpdatePlayer(Player player, @DestinationVariable int roomId) {
-        msgt.convertAndSend("/client/room" + roomId + "/playerUpdate", player);
-    }
-    
+    }    
 
     public void handleAddFuelCell(int[] data, int roomId) {
         System.out.println("[ROOM " + roomId + "] New FuelCell sent: " + data[0] + " " + data[1] + " " + data[2]);

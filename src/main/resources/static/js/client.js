@@ -41,7 +41,7 @@ var ClientModule = (function () {
     };
     
     var subscribeToPlayerUpdates = function () {
-        stompClient.subscribe("/client/room" + roomId + "/playerUpdate", function (eventbody) {
+        stompClient.subscribe("/client/room" + roomId + "/updatePlayer", function (eventbody) {
             updatePlayer(JSON.parse(eventbody.body));
         });
     };
@@ -141,7 +141,7 @@ var ClientModule = (function () {
     };
     
     var sendUpdatePlayer = function (playerX, playerY, playerAngle) {
-        stompClient.send("/app/room" + roomId + "/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
+        stompClient.send("/client/room" + roomId + "/updatePlayer", {}, JSON.stringify({playerId:playerId, playerX:playerX, playerY:playerY, playerAngle:playerAngle}));
     };
     
     var getPlayerId = function () {

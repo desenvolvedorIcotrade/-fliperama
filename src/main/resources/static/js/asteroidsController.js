@@ -26,7 +26,6 @@ var GameModule = (function () {
         return playerList;
     };
     
-    //se modifico
     var addNewPlayer = function (playerData) {
         if (ClientModule.getPlayerId() !== playerData.playerId) {
             var revived = false;
@@ -38,7 +37,8 @@ var GameModule = (function () {
             }
             if (!revived) {
                 var newPlayer = game.add.sprite(playerData.playerX, playerData.playerY, "player");
-
+                game.physics.arcade.enable(newPlayer);
+                
                 var fBar = new HealthBar(game, {x: 140 , y: barFlag + 25, height: 10});
                 fBar.setBarColor("#02daff");
 
@@ -390,7 +390,7 @@ var statusMain = {
 
         //Multiplayer position update - revisar
         if (connected === true) {
-            if (tickRateUpdate >= 2) { 
+            if (tickRateUpdate >= 1) { 
                 ClientModule.sendUpdatePlayer(player.x, player.y, player.angle);
                 tickRateUpdate = 0;
             }
